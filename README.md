@@ -1,5 +1,18 @@
-This is the README.md file for OnlyVibes frontend.
+# OnlyVibes Frontend
+A production-ready React frontend for the OnlyVibes event discovery platform.
 
-# onlyvibes-frontend
+## 🚀 Features
+- React 18 with CRA
+- Responsive UI (desktop + mobile)
+- Screens built from mockups
+- Axios API service layer
+- Basic Authentication (Base64)
+- User login & signup
+- View events, filters, search
+- Create event
+- View & write reviews
+- Follow, like, notifications
+- Verification workflow
+- Personalized recommendations
 
-# test commit by koudounaros
+## 📁 Project Structure
