@@ -1,59 +1,47 @@
 // src/context/AuthContext.jsx
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { buildBasicAuthHeader } from "../utils/auth";
-import { loginWithUserId } from "../api/accounts";
+import React, { createContext, useContext, useState } from 'react';
+import apiClient from '../api/apiClient';
+import { MOCK_ACCOUNT } from '../api/mockData';
+import { ENDPOINTS, API_BASE_URL } from '../utils/constants';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [credentials, setCredentials] = useState({ userId: "", password: "" });
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(MOCK_ACCOUNT); 
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
-  useEffect(() => {
-    const storedUser = window.localStorage.getItem("onlyvibes_user");
-    const storedCreds = window.localStorage.getItem("onlyvibes_creds");
-    const authHeader = window.localStorage.getItem("onlyvibes_auth_header");
+  const login = async (email, password) => {
+    try {
+        if (!API_BASE_URL.includes('localhost') && email && password) {
+            const token = btoa(`${email}:${password}`); 
+            localStorage.setItem('authToken', token);
+        }
 
-    if (storedUser && storedCreds && authHeader) {
-      setUser(JSON.parse(storedUser));
-      setCredentials(JSON.parse(storedCreds));
+        // Endpoint 1: GET /accounts/{userId} (Simulated after successful login/registration)
+        setUser(MOCK_ACCOUNT); 
+        setIsAuthenticated(true);
+        return MOCK_ACCOUNT;
+    } catch (error) {
+        console.error("Login failed:", error);
+        setIsAuthenticated(false);
+        throw error;
     }
-    setLoading(false);
-  }, []);
-
-  const login = async (userId, password) => {
-    const authHeader = buildBasicAuthHeader(userId, password);
-    if (!authHeader) {
-      throw new Error("Missing credentials");
-    }
-    window.localStorage.setItem("onlyvibes_auth_header", authHeader);
-    const account = await loginWithUserId(userId);
-    setUser(account);
-    const creds = { userId, password };
-    setCredentials(creds);
-    window.localStorage.setItem("onlyvibes_user", JSON.stringify(account));
-    window.localStorage.setItem("onlyvibes_creds", JSON.stringify(creds));
   };
 
   const logout = () => {
+    localStorage.removeItem('authToken');
     setUser(null);
-    setCredentials({ userId: "", password: "" });
-    window.localStorage.removeItem("onlyvibes_user");
-    window.localStorage.removeItem("onlyvibes_creds");
-    window.localStorage.removeItem("onlyvibes_auth_header");
+    setIsAuthenticated(false);
   };
+  
+  const getUserId = () => user ? user.id : null;
+  const getUserRole = () => user ? user.role : 'guest';
 
-  const value = {
-    user,
-    credentials,
-    isAuthenticated: !!user,
-    loading,
-    login,
-    logout
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, getUserId, getUserRole }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
-
-export const useAuth = () => useContext(AuthContext);
