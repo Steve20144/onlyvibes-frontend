@@ -8,7 +8,7 @@ function App() {
     <Router>
       <div className="App">
         <AppRouter />
-        {/* Bottom Navigation (Εμφανίζεται σε όλες τις σελίδες) */}
+        {/* Bottom Navigation  */}
         <nav className="bottom-nav">
           <a href="/"><span className="material-icons">home</span></a>
           <a href="/search"><span className="material-icons">search</span></a>
