@@ -5,6 +5,7 @@ import HomePage from "../pages/HomePage";
 import {SearchPage} from "../pages/SearchPage";
 import {ProfilePage} from "../pages/ProfilePage";
 import LoginPage from "../pages/LoginPage";
+import CreateEventPage from "../pages/CreateEventPage";
 import {EventDetailsPage} from "../pages/EventDetailsPage";
 import ProtectedRoute from "./ProtectedRoute"; // or however you implemented it
 
@@ -19,6 +20,7 @@ const AppRouter = () => (
       <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/events/:eventId" element={<ProtectedRoute><EventDetailsPage /></ProtectedRoute>} />
+      <Route path="/events/create" element={<ProtectedRoute><CreateEventPage /></ProtectedRoute>} />
     </Route>
 
     <Route path="*" element={<h1>404 Not Found</h1>} />

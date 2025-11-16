@@ -18,7 +18,6 @@ export default function MainLayout() {
   const location = useLocation();
   const scrollRef = useRef(null);
   
-  // --- CHANGED THIS LINE ---
   const [isDebug, setIsDebug] = useState(false); // Default to OFF
 
   useLayoutEffect(() => {
@@ -41,7 +40,6 @@ export default function MainLayout() {
   };
 
   return (
-    /* 1. RED BORDER = The "Phone" Frame */
     <div style={{
       display: 'flex',
       flexDirection: 'column',
@@ -51,14 +49,11 @@ export default function MainLayout() {
       backgroundColor: '#000',
       boxSizing: 'border-box',
       position: 'relative',
-      
-      /* 4. Make the border conditional */
       border: isDebug ? '4px solid red' : 'none' 
     }}>
       
       <style>{hideScrollbarStyle}</style>
 
-      {/* 5. Add the Debug Toggle Button */}
       <button 
         onClick={() => setIsDebug(!isDebug)}
         style={{
@@ -79,7 +74,6 @@ export default function MainLayout() {
         Debug: {isDebug ? 'ON' : 'OFF'}
       </button>
 
-      {/* 2. BLUE BORDER = Scrollable Content */}
       <div 
         ref={scrollRef}          
         onScroll={handleScroll}  
@@ -89,29 +83,23 @@ export default function MainLayout() {
           overflowY: 'auto',
           position: 'relative',
           boxSizing: 'border-box',
-
-          /* 6. Make the border conditional */
           border: isDebug ? '2px dashed cyan' : 'none'
         }}
       >
         <Outlet />
       </div>
       
-      {/* 3. NAV BAR AREA (Yellow Border) */}
+      {/* --- THIS IS THE UPDATED PART --- */}
       <div style={{
         flex: '0 0 auto',
         width: '100%',
         zIndex: 50,
-        paddingBottom: '20px',
-        paddingTop: '10px',
         background: '#000',
-
-        /* 7. Make the border conditional */
+        // REMOVED padding from here
         borderTop: isDebug ? '2px solid yellow' : 'none'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-           <BottomNav />
-        </div>
+        {/* Removed the wrapper div so BottomNav fills the container */}
+        <BottomNav />
       </div>
 
     </div>
