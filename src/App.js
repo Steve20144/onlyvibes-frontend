@@ -1,19 +1,14 @@
+// src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import AppRouter from './router/AppRouter';
-import './index.css'; 
+import BottomNav from './components/BottomNav';
 
 function App() {
   return (
     <Router>
       <div className="App">
         <AppRouter />
-        {/* Bottom Navigation  */}
-        <nav className="bottom-nav">
-          <a href="/"><span className="material-icons">home</span></a>
-          <a href="/search"><span className="material-icons">search</span></a>
-          <a href="/profile"><span className="material-icons">person</span></a>
-        </nav>
       </div>
     </Router>
   );

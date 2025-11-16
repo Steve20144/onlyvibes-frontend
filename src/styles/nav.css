@@ -1,0 +1,18 @@
+/* Ensure nav is visible and spans entire viewport */
+.onlyvibes-bottom-nav {
+  background: rgba(6, 3, 12, 0.65); /* semi-transparent dark background to match theme */
+  backdrop-filter: blur(6px);       /* optional for glass effect */
+  -webkit-backdrop-filter: blur(6px);
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Icon colors — use utility classes in JSX; fallback here for safety */
+.onlyvibes-bottom-nav svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Reserve space for nav: ensure this matches nav height (approx 56px) */
+.app-content-with-nav {
+  padding-bottom: 4.5rem; /* 72px — change if nav height differs */
+}

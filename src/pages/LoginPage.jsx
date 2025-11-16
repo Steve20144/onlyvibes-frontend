@@ -1,73 +1,96 @@
 // src/pages/LoginPage.jsx
-import React, { useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import LoginForm from "../components/LoginForm";
-import ErrorMessage from "../components/ErrorMessage";
+import React, { useEffect, useState } from 'react';
+// Corrected import path based on your index.js
+import { useAuth } from '../auth/AuthContext'; 
+import '../styles/LoginPage.css'; // <-- Import the CSS
 
-const LoginPage = () => {
-  const { isAuthenticated, login } = useAuth();
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+export default function LoginPage({ onSuccessRedirect = '/' }) {
+  const { user, login } = useAuth();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  if (isAuthenticated) {
-    return <Navigate to={from} replace />;
-  }
+  useEffect(() => {
+    if (user) window.location.href = onSuccessRedirect;
+  }, [user, onSuccessRedirect]);
 
-  const handleLogin = async (userId, password) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!username || !password) {
+      setError('Please enter username and password');
+      return;
+    }
+    setLoading(true);
     try {
-      setSubmitting(true);
-      setError("");
-      await login(userId, password);
-    } catch (e) {
-      setError("Login failed. Please check your credentials.");
+      await login(username.trim(), password);
+    } catch (err) {
+      setError(err.message || 'Login failed');
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="app-shell">
-      <div className="phone-frame">
-        <div className="phone-content">
-          <div
-            style={{
-              padding: 24,
-              paddingTop: 40,
-              textAlign: "center"
-            }}
-          >
-            <h1 style={{ margin: 0, fontSize: 26 }}>OnlyVibes</h1>
-            <p
-              style={{
-                margin: "8px 0 24px",
-                fontSize: 13,
-                color: "var(--text-muted)"
-              }}
-            >
-              Discover the hottest parties near you.
-            </p>
-
-            <ErrorMessage message={error} />
-            <LoginForm onSubmit={handleLogin} submitting={submitting} />
-
-            <p
-              style={{
-                marginTop: 16,
-                fontSize: 12,
-                color: "var(--text-muted)"
-              }}
-            >
-              This demo uses HTTP Basic Authentication. Your credentials are
-              stored locally only.
-            </p>
+    <div className="login-container">
+      <div className="login-card">
+        <h1 className="login-title">OnlyVibes — Sign in</h1>
+        
+        <form onSubmit={handleSubmit} className="login-form">
+          
+          {/* Changed to use "input-group" and "login-input" */}
+          <div className="input-group">
+            <label className="input-label">Username</label>
+            <input 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)} 
+              className="login-input" 
+              placeholder="username" 
+              autoComplete="username" 
+            />
           </div>
+          
+          {/* Changed to use "input-group" and "login-input" */}
+          <div className="input-group">
+            <label className="input-label">Password</label>
+            <input 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              type="password" 
+              className="login-input" 
+              placeholder="password" 
+              autoComplete="current-password" 
+            />
+          </div>
+          
+          {/* Changed to use "error-msg" */}
+          {error && <div className="error-msg">{error}</div>}
+          
+          {/* Changed to use "form-footer", "login-btn", and "demo-link" */}
+          <div className="form-footer">
+            <button 
+              type="submit" 
+              disabled={loading} 
+              className="login-btn"
+            >
+              {loading ? 'Signing in...' : 'Sign in'}
+            </button>
+            <button 
+              type="button" 
+              onClick={() => { setUsername('alice'); setPassword('password123'); }} 
+              className="demo-link"
+            >
+              Demo user
+            </button>
+          </div>
+        </form>
+        
+        {/* Changed to use "disclaimer" */}
+        <div className="disclaimer">
+          This login uses static data for now.
         </div>
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}
