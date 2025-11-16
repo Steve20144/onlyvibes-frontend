@@ -108,17 +108,6 @@ export const EventDetailsPage = () => {
             <p className="rating">⭐️ {eventData.reviewSummary} ({eventData.reviewCount} reviews)</p>
         </div>
 
-        {}
-        <div className="edit-event-action" style={{ textAlign: 'right', marginBottom: '15px' }}>
-            <button 
-                className="btn btn-secondary" 
-                
-                onClick={() => navigate(`/events/${eventId}/edit`)}
-            >
-                Edit Event Details
-            </button>
-        </div>
-        
         {/* --- Area for Review/Edit/Delete --- */}
         <div className="user-review-area card-panel">
           {hasSubmittedReview ? (
