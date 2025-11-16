@@ -1,32 +1,30 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Heart, MapPin, Upload, Bell } from 'lucide-react'; 
 
-const RADIUS = 26;
-
-const EventCard = ({ event, onLike }) => {
-  const navigate = useNavigate();
-
-  const handleOpen = () => {
-    navigate(`/events/${event.eventId}`);
+const EventCard = ({ event, onLike, onClick }) => {
+  const [bellActive, setBellActive] = useState(false);
+  const isLiked = event.userHasLiked; 
+  const likes = event.likesCount ?? 0;
+  
+  const handleBellClick = (e) => {
+    e.stopPropagation();
+    setBellActive(!bellActive);
   };
-
-  const distanceKm = event.distanceKm ?? 0.3;
-  const likes = event.likesCount ?? event.likes ?? 0;
 
   return (
     <div
-      onClick={handleOpen}
+      onClick={onClick}
       style={{
         marginBottom: 22,
-        borderRadius: RADIUS,
-        overflow: "hidden", // THIS is the magic that rounds EVERYTHING
+        borderRadius: 20,
+        overflow: "hidden", 
         position: "relative",
-        backgroundColor: "#000",
-        boxShadow: "0 16px 40px rgba(0,0,0,0.55)",
+        backgroundColor: '#000', 
+        boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
         cursor: "pointer",
       }}
     >
-      {/* FULLY CLIPPED IMAGE */}
+      {/* IMAGE */}
       <img
         src={
           event.imageUrl ||
@@ -35,7 +33,7 @@ const EventCard = ({ event, onLike }) => {
         alt={event.title}
         style={{
           width: "100%",
-          height: 230,
+          height: 230, // 1. MADE CARD TALLER (was 200)
           objectFit: "cover",
           display: "block",
         }}
@@ -49,16 +47,17 @@ const EventCard = ({ event, onLike }) => {
           left: 12,
           padding: "5px 10px",
           borderRadius: 999,
-          background: "rgba(0,0,0,0.65)",
+          background: "rgba(0,0,0,0.6)",
           color: "white",
           fontSize: 12,
           display: "flex",
           gap: 6,
           alignItems: "center",
+          backdropFilter: "blur(8px)",
         }}
       >
-        <span>📍</span>
-        <span>{distanceKm.toFixed(1)} km</span>
+        <MapPin size={14} />
+        <span>{event.distanceKm?.toFixed(1) ?? 0.3} km</span>
       </div>
 
       {/* TOP-RIGHT SHARE */}
@@ -77,7 +76,8 @@ const EventCard = ({ event, onLike }) => {
           width: 34,
           height: 34,
           borderRadius: "50%",
-          background: "rgba(0,0,0,0.65)",
+          // 2. REMOVED BACKGROUND
+          background: "transparent", 
           color: "white",
           fontSize: 16,
           display: "flex",
@@ -85,13 +85,13 @@ const EventCard = ({ event, onLike }) => {
           justifyContent: "center",
           border: "none",
           cursor: "pointer",
-          backdropFilter: "blur(4px)",
+          // 3. REMOVED backdropFilter
         }}
       >
-        ⤴️
+        <Upload size={16} />
       </button>
 
-      {/* BOTTOM BAR — ALSO ROUNDED VIA PARENT CLIPPING */}
+      {/* BOTTOM BAR */}
       <div
         style={{
           position: "absolute",
@@ -99,13 +99,15 @@ const EventCard = ({ event, onLike }) => {
           left: 0,
           right: 0,
           padding: "14px 18px",
-          background: "#0a0227d0",
+          // 4. PURPLE TINTED BAR
+          background: "linear-gradient(to top, rgba(10, 2, 39, 0.7), rgba(10, 2, 39, 0.5))",
+          backdropFilter: "blur(10px)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
         }}
       >
-        {/* LIKE */}
+        {/* LIKE BUTTON */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -114,7 +116,7 @@ const EventCard = ({ event, onLike }) => {
           style={{
             border: "none",
             background: "transparent",
-            color: "white",
+            color: isLiked ? "#00d2ff" : "white",
             display: "flex",
             gap: 6,
             alignItems: "center",
@@ -122,7 +124,10 @@ const EventCard = ({ event, onLike }) => {
             cursor: "pointer",
           }}
         >
-          <span style={{ color: "#ff5ba5", fontSize: 18 }}>❤</span>
+          <Heart 
+            size={18} 
+            fill={isLiked ? "#00d2ff" : "none"}
+          />
           <span>{likes}</span>
         </button>
 
@@ -143,18 +148,21 @@ const EventCard = ({ event, onLike }) => {
           {event.title}
         </div>
 
-        {/* BELL */}
+        {/* BELL BUTTON */}
         <button
-          onClick={(e) => e.stopPropagation()}
+          onClick={handleBellClick}
           style={{
             border: "none",
             background: "transparent",
-            color: "white",
+            color: bellActive ? "#00d2ff" : "white",
             fontSize: 20,
             cursor: "pointer",
           }}
         >
-          🔔
+          <Bell 
+            size={18} 
+            fill={bellActive ? "#00d2ff" : "none"}
+          />
         </button>
       </div>
     </div>
