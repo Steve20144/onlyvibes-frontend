@@ -1,6 +1,8 @@
 import React, { useState, useRef, useLayoutEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
+// Assuming your modal is at this path
+import PopupDialog from "../components/PopupDialog"; 
 
 const hideScrollbarStyle = `
   .no-scrollbar::-webkit-scrollbar {
@@ -18,25 +20,15 @@ export default function MainLayout() {
   const location = useLocation();
   const scrollRef = useRef(null);
   
-  const [isDebug, setIsDebug] = useState(false); // Default to OFF
+  const [isDebug, setIsDebug] = useState(false);
+  const [showTestModal, setShowTestModal] = useState(false); 
 
   useLayoutEffect(() => {
-    if (!scrollRef.current) return;
-    const savedPosition = scrollPositions[location.pathname] || 0;
-    scrollRef.current.scrollTop = savedPosition;
-
-    const timer = setTimeout(() => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollTop = savedPosition;
-      }
-    }, 50);
-
-    return () => clearTimeout(timer);
+    // ... (your scroll logic) ...
   }, [location.pathname]);
 
   const handleScroll = (e) => {
-    const position = e.target.scrollTop;
-    scrollPositions[location.pathname] = position;
+    // ... (your scroll logic) ...
   };
 
   return (
@@ -54,26 +46,32 @@ export default function MainLayout() {
       
       <style>{hideScrollbarStyle}</style>
 
-      <button 
-        onClick={() => setIsDebug(!isDebug)}
-        style={{
-          position: 'absolute',
-          top: '15px',
-          right: '15px',
-          zIndex: 99999,
-          background: isDebug ? 'rgba(255, 50, 50, 0.8)' : '#333',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          padding: '4px 8px',
-          fontSize: '12px',
-          cursor: 'pointer',
-          fontFamily: 'sans-serif'
-        }}
-      >
-        Debug: {isDebug ? 'ON' : 'OFF'}
-      </button>
+      {/* --- BUTTON WRAPPER --- */}
+      <div style={{
+        position: 'absolute',
+        top: '15px',
+        right: '15px',
+        zIndex: 990, // <--- THIS IS THE FIX (was 99999)
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '5px'
+      }}>
+        <button 
+          onClick={() => setIsDebug(!isDebug)}
+          style={debugButtonStyle(isDebug ? 'rgba(255, 50, 50, 0.8)' : '#333')}
+        >
+          Debug: {isDebug ? 'ON' : 'OFF'}
+        </button>
+        
+        <button
+          onClick={() => setShowTestModal(true)}
+          style={debugButtonStyle('#333')}
+        >
+          Test Modal
+        </button>
+      </div>
 
+      {/* ... (Scrollable content / Outlet) ... */}
       <div 
         ref={scrollRef}          
         onScroll={handleScroll}  
@@ -89,19 +87,38 @@ export default function MainLayout() {
         <Outlet />
       </div>
       
-      {/* --- THIS IS THE UPDATED PART --- */}
+      {/* ... (Nav Bar Area) ... */}
       <div style={{
         flex: '0 0 auto',
         width: '100%',
         zIndex: 50,
         background: '#000',
-        // REMOVED padding from here
         borderTop: isDebug ? '2px solid yellow' : 'none'
       }}>
-        {/* Removed the wrapper div so BottomNav fills the container */}
         <BottomNav />
       </div>
+
+      {/* --- MODAL --- */}
+      <PopupDialog
+        show={showTestModal}
+        onClose={() => setShowTestModal(false)}
+        title="Test Modal"
+      >
+        This is a test modal triggered from the MainLayout.
+      </PopupDialog>
 
     </div>
   );
 }
+
+// Helper function for button styles
+const debugButtonStyle = (backgroundColor) => ({
+  background: backgroundColor,
+  color: 'white',
+  border: 'none',
+  borderRadius: '5px',
+  padding: '4px 8px',
+  fontSize: '12px',
+  cursor: 'pointer',
+  fontFamily: 'sans-serif'
+});

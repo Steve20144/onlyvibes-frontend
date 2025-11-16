@@ -107,9 +107,9 @@ export const ProfilePage = () => {
       {/* 5. Menu List (from mockup + Logout) */}
       <div style={styles.menuList}>
         <div style={styles.divider} />
-        <MenuItem icon={<Heart size={20} />} text="Liked Events" onClick={() => navigate('/profile/liked')} />
-        <MenuItem icon={<MessageSquare size={20} />} text="Reviewed Events" onClick={() => navigate('/profile/reviews')} />
-        <MenuItem icon={<Calendar size={20} />} text="Organized Events" onClick={() => navigate('/profile/organized')} />
+        <MenuItem icon={<Heart size={20} />} text="Liked Events" onClick={() => navigate('/events/liked')} />
+        <MenuItem icon={<MessageSquare size={20} />} text="Reviewed Events" onClick={() => navigate('/events/reviewed')} />
+        <MenuItem icon={<Calendar size={20} />} text="Organized Events" onClick={() => navigate('/events/organized')} />
         <MenuItem icon={<SlidersHorizontal size={20} />} text="Edit Preferences" onClick={() => navigate('/profile/preferences')} />
         
         {/* Added your Logout functionality to fit the design */}

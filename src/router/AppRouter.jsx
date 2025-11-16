@@ -8,6 +8,9 @@ import LoginPage from "../pages/LoginPage";
 import CreateEventPage from "../pages/CreateEventPage";
 import {EventDetailsPage} from "../pages/EventDetailsPage";
 import ProtectedRoute from "./ProtectedRoute"; // or however you implemented it
+import LikedEventsPage from "../pages/LikedEventsPage";
+import ReviewedEventsPage from "../pages/ReviewedEventsPage";
+import OrganizedEventsPage from "../pages/OrganizedEventsPage";
 
 const AppRouter = () => (
   <Routes>
@@ -21,6 +24,10 @@ const AppRouter = () => (
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/events/:eventId" element={<ProtectedRoute><EventDetailsPage /></ProtectedRoute>} />
       <Route path="/events/create" element={<ProtectedRoute><CreateEventPage /></ProtectedRoute>} />
+      <Route path="/events/liked" element={<ProtectedRoute><LikedEventsPage /></ProtectedRoute>} />
+      <Route path="/events/reviewed" element={<ProtectedRoute><ReviewedEventsPage /></ProtectedRoute>} />
+      <Route path="/events/organized" element={<ProtectedRoute><OrganizedEventsPage /></ProtectedRoute>} />
+
     </Route>
 
     <Route path="*" element={<h1>404 Not Found</h1>} />

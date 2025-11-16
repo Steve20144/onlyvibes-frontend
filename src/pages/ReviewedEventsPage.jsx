@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EventList from "../components/EventList"; 
-import { useAuth } from "../auth/AuthContext"; // 1. Import useAuth
 
 // --- ALL YOUR DEMO EVENTS ---
-// 2. Added 'organizerId' to each event
-// Let's assume our logged-in user (Alice) has an ID of 2
+// We need to add 'userReview' to the data
 const DEMO_EVENTS = [
   {
     eventId: 1,
@@ -15,8 +13,7 @@ const DEMO_EVENTS = [
     imageUrl: "https://images.pexels.com/photos/167636/pexels-photo-167636.jpeg",
     likesCount: 125,
     userHasLiked: false, 
-    userReview: null,
-    organizerId: 1, // Organized by "Bob"
+    userReview: null, // <--- ADDED
   },
   {
     eventId: 2,
@@ -26,8 +23,7 @@ const DEMO_EVENTS = [
     imageUrl: "https://images.pexels.com/photos/2102568/pexels-photo-2102568.jpeg",
     likesCount: 543,
     userHasLiked: true, 
-    userReview: { rating: 5, comment: "Amazing!" },
-    organizerId: 2, // Organized by "Alice" (current user)
+    userReview: { rating: 5, comment: "Amazing!" }, // <--- ADDED
   },
   {
     eventId: 3,
@@ -37,8 +33,7 @@ const DEMO_EVENTS = [
     imageUrl: "https://summerrockz.com/wp-content/uploads/2024/03/Lloret-de-Mar-NightLife.jpeg",
     likesCount: 342,
     userHasLiked: false,
-    userReview: null,
-    organizerId: 1, // Organized by "Bob"
+    userReview: null, // <--- ADDED
   },
   {
     eventId: 4,
@@ -48,47 +43,76 @@ const DEMO_EVENTS = [
     imageUrl: "https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg",
     likesCount: 88,
     userHasLiked: false,
-    userReview: null,
-    organizerId: 2, // Organized by "Alice" (current user)
+    userReview: null, // <--- ADDED
   },
-  // ... (the rest of your events) ...
+  {
+    eventId: 5,
+    title: "Techno Bunker",
+    venueName: "The Warehouse",
+    distanceKm: 2.5,
+    imageUrl: "https://images.pexels.com/photos/3754300/pexels-photo-3754300.jpeg",
+    likesCount: 720,
+    userHasLiked: true,
+    userReview: { rating: 4, comment: "Intense." }, // <--- ADDED
+  },
+  {
+    eventId: 6,
+    title: "Jazz Night",
+    venueName: "The Speakeasy",
+    distanceKm: 0.8,
+    imageUrl: "https://images.pexels.com/photos/167491/pexels-photo-167491.jpeg",
+    likesCount: 215,
+    userHasLiked: false,
+    userReview: null, // <--- ADDED
+  },
+  {
+    eventId: 7,
+    title: "Rooftop Party",
+    venueName: "Sky Garden",
+    distanceKm: 1.0,
+    imageUrl: "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg",
+    likesCount: 430,
+    userHasLiked: false,
+    userReview: null, // <--- ADDED
+  },
 ];
 
-// 3. RENAMED COMPONENT
-const OrganizedEventsPage = () => {
+// 1. RENAMED COMPONENT
+const ReviewedEventsPage = () => {
   const navigate = useNavigate(); 
-  const { user } = useAuth(); // 4. Get the logged-in user
-
-  // This is a fallback. In your real app, 'user.id' would come from the context
-  const CURRENT_USER_ID = user?.id || 2; 
-
-  // 5. FILTERED INITIAL STATE
-  const [organizedEvents, setOrganizedEvents] = useState(
-    DEMO_EVENTS.filter(e => e.organizerId === CURRENT_USER_ID)
+  
+  // 2. FILTERED INITIAL STATE
+  // This state holds the "master list" of reviewed events
+  const [reviewedEvents, setReviewedEvents] = useState(
+    DEMO_EVENTS.filter(e => e.userReview !== null)
   );
   
-  const [displayedEvents, setDisplayedEvents] = useState(organizedEvents);
+  // This state holds what is actually *shown* (after search)
+  const [displayedEvents, setDisplayedEvents] = useState(reviewedEvents);
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (e) => {
     const q = e.target.value.toLowerCase();
     setSearchQuery(q);
     if (!q) {
-      setDisplayedEvents(organizedEvents);
+      setDisplayedEvents(reviewedEvents); // Reset to full reviewed list
       return; 
     }
-    const filtered = organizedEvents.filter(ev => ev.title.toLowerCase().includes(q) || ev.venueName.toLowerCase().includes(q));
+    // Filter from the reviewed list
+    const filtered = reviewedEvents.filter(ev => ev.title.toLowerCase().includes(q) || ev.venueName.toLowerCase().includes(q));
     setDisplayedEvents(filtered);
   };
 
   const handleClearFilters = () => {
     setSearchQuery("");
-    setDisplayedEvents(organizedEvents);
+    setDisplayedEvents(reviewedEvents); // Reset to full reviewed list
   };
 
-  // Liking/Unliking should still work on this page
+  // 3. KEPT 'handleLike' as a toggle
+  // Liking/Unliking an event shouldn't remove it from this page
   const handleLike = (event) => {
-    setOrganizedEvents(prev => prev.map(e => {
+    // Update the master list
+    setReviewedEvents(prev => prev.map(e => {
       if (e.eventId === event.eventId) {
         const newLikedState = !e.userHasLiked;
         const newLikesCount = newLikedState ? (e.likesCount || 0) + 1 : (e.likesCount || 0) - 1;
@@ -96,6 +120,8 @@ const OrganizedEventsPage = () => {
       }
       return e;
     }));
+    
+    // Update the displayed list
     setDisplayedEvents(prev => prev.map(e => {
       if (e.eventId === event.eventId) {
         const newLikedState = !e.userHasLiked;
@@ -119,6 +145,7 @@ const OrganizedEventsPage = () => {
     }}>
       
       {/* --- 1. STICKY HEADER --- */}
+      {/* We can change this to a "Back" button later if you want */}
       <div style={{
         position: 'sticky',
         top: 0,
@@ -133,7 +160,7 @@ const OrganizedEventsPage = () => {
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
           <input 
             type="text"
-            placeholder="Search your events..." // 6. Changed placeholder
+            placeholder="Search reviewed events..." // Changed placeholder
             value={searchQuery}
             onChange={handleSearch}
             style={{
@@ -144,7 +171,7 @@ const OrganizedEventsPage = () => {
           />
         </div>
 
-        {/* Filter Row (You may want to remove this) */}
+        {/* Filter Row */}
         <div style={{ 
           display: 'flex', 
           flexDirection: 'row', 
@@ -172,13 +199,13 @@ const OrganizedEventsPage = () => {
       }}>
         {displayedEvents.length > 0 ? (
           <EventList 
-            events={displayedEvents}
+            events={displayedEvents} // Pass the correct state
             onLike={handleLike} 
             onEventClick={handleEventClick}
           />
         ) : (
-          // 7. Updated empty state message
-          <p style={{ color: '#888', textAlign: 'center' }}>You haven't organized any events yet.</p>
+          // Updated empty state message
+          <p style={{ color: '#888', textAlign: 'center' }}>You haven't reviewed any events yet.</p>
         )}
       </div>
 
@@ -186,4 +213,4 @@ const OrganizedEventsPage = () => {
   );
 };
 
-export default OrganizedEventsPage; // 8. Changed export
+export default ReviewedEventsPage; // Don't forget to change the export
