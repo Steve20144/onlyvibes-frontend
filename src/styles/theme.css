@@ -183,3 +183,6 @@
 .filter-pill span {
   color: #ffffff !important;
 }
+
+.onlyvibes-bottom-nav { background: rgba(8,6,12,0.6); backdrop-filter: blur(6px); border-top: 1px solid rgba(255,255,255,0.04); }
+.app-content-with-nav { padding-bottom: 4.5rem; } /* apply this to the element wrapping <Outlet/> if needed */

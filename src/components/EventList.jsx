@@ -2,7 +2,8 @@
 import React from "react";
 import EventCard from "./EventCard";
 
-const EventList = ({ events, onLike }) => {
+// 1. Accept 'onEventClick' here
+const EventList = ({ events, onLike, onEventClick }) => {
   if (!events || events.length === 0) {
     return <p style={{ color: "var(--text-muted)" }}>No events found.</p>;
   }
@@ -10,7 +11,14 @@ const EventList = ({ events, onLike }) => {
   return (
     <>
       {events.map((ev) => (
-        <EventCard key={ev.eventId} event={ev} onLike={onLike} />
+        <EventCard 
+            key={ev.eventId} 
+            event={ev} 
+            onLike={onLike}
+            
+            // 2. Pass it down to the Card component
+            onClick={() => onEventClick(ev.eventId)} 
+        />
       ))}
     </>
   );

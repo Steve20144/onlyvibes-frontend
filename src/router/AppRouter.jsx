@@ -1,32 +1,28 @@
-// src/router/AppRouter.jsx
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import MainLayout from "../layouts/MainLayout";
+import HomePage from "../pages/HomePage";
+import {SearchPage} from "../pages/SearchPage";
+import {ProfilePage} from "../pages/ProfilePage";
+import LoginPage from "../pages/LoginPage";
+import {EventDetailsPage} from "../pages/EventDetailsPage";
+import ProtectedRoute from "./ProtectedRoute"; // or however you implemented it
 
-// Pages 
-import { HomePage } from '../pages/HomePage';
-import { EventDetailsPage } from '../pages/EventDetailsPage';
-import { RegistrationPage } from '../pages/RegistrationPage';
-import { SearchPage } from '../pages/SearchPage';
-import { ProfilePage } from '../pages/ProfilePage'; 
+const AppRouter = () => (
+  <Routes>
+    {/* public route */}
+    <Route path="/login" element={<LoginPage />} />
 
-const ProtectedRoute = ({ children }) => {
-    const { isAuthenticated } = useAuth();
-    return isAuthenticated ? children : <Navigate to="/register" />;
-};
-
-const AppRouter = () => {
-  return (
-    <Routes>
-      <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-      <Route path="/events/:eventId" element={<ProtectedRoute><EventDetailsPage /></ProtectedRoute>} />
-      <Route path="/register" element={<RegistrationPage />} />
+    {/* routes that share main layout */}
+    <Route element={<MainLayout />}>
+      <Route index element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
       <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-      
-      <Route path="*" element={<h1>404 Not Found</h1>} />
-    </Routes>
-  );
-};
+      <Route path="/events/:eventId" element={<ProtectedRoute><EventDetailsPage /></ProtectedRoute>} />
+    </Route>
+
+    <Route path="*" element={<h1>404 Not Found</h1>} />
+  </Routes>
+);
 
 export default AppRouter;

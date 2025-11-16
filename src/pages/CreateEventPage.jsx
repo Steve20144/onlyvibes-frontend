@@ -1,6 +1,5 @@
 // src/pages/CreateEventPage.jsx
 import React, { useState } from "react";
-import BottomNav from "../components/BottomNav";
 import EventForm from "../components/EventForm";
 import ErrorMessage from "../components/ErrorMessage";
 import { createEvent } from "../api/events";
@@ -79,7 +78,6 @@ const CreateEventPage = () => {
 
             <EventForm onSubmit={handleSubmit} submitting={submitting} />
           </div>
-          <BottomNav />
         </div>
       </div>
     </div>
