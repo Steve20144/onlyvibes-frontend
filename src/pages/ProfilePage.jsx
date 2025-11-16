@@ -43,6 +43,11 @@ export const ProfilePage = () => {
     </button>
   );
 
+  // Function to handle navigation for vertical links
+  const handleActionClick = (path) => {
+    navigate(path);
+  };
+
   return (
     <div style={styles.pageContainer}>
       

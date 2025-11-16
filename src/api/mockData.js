@@ -1,10 +1,12 @@
 // src/api/mockData.js
 // Dummy/Static Data for OnlyVibes Frontend
 
+// --- 1. Constants ---
 export const MOCK_USER_ID = "user123";
 export const MOCK_REVIEW_ID = "review99";
 export const MOCK_EVENT_ID = 404; 
 
+// --- 2. Account Entity ---
 export const MOCK_ACCOUNT = {
   id: MOCK_USER_ID,
   email: "john.doe@example.com",
@@ -18,6 +20,7 @@ export const MOCK_ACCOUNT = {
   followedAccountsIds: ["venue456"],
 };
 
+// --- 3. Event Entities ---
 export const MOCK_EVENTS = [
   {
     eventId: 101,
@@ -42,7 +45,7 @@ export const MOCK_EVENTS = [
     imageUrl: "https://picsum.photos/400/200?random=2"
   },
   {
-    eventId: MOCK_EVENT_ID,
+    eventId: MOCK_EVENT_ID, 
     creatorId: 3,
     title: "Cool Party Title #1",
     location: "Casper",
@@ -54,6 +57,7 @@ export const MOCK_EVENTS = [
   },
 ];
 
+// --- 4. Review Entity ---
 export const MOCK_REVIEW = {
   reviewId: MOCK_REVIEW_ID,
   eventId: MOCK_EVENT_ID.toString(),
@@ -63,16 +67,21 @@ export const MOCK_REVIEW = {
   timestamp: "2025-03-30T10:00:00Z"
 };
 
+// --- 5. Event Details States  ---
+const baseEvent = MOCK_EVENTS.find(e => e.eventId === MOCK_EVENT_ID);
+
 export const MOCK_EVENT_DETAILS_WITH_REVIEW = {
-    ...MOCK_EVENTS.find(e => e.eventId === MOCK_EVENT_ID),
+    ...baseEvent,
     reviewSummary: 4.0,
     reviewCount: 264, 
     userReview: MOCK_REVIEW, 
-    reviews: [MOCK_REVIEW]
+    reviews: [MOCK_REVIEW],
+    description: "Suspense condimentum eget mi non dapibus. In hac habitasse platea dictumst. Aenean convallis odio massa, pellentesque posuere turpis pulvinar in.",
+    photos: ["photo1.jpg", "photo2.jpg", "photo3.jpg", "photo4.jpg", "photo5.jpg", "photo6.jpg"]
 };
 
 export const MOCK_EVENT_DETAILS_WITHOUT_REVIEW = {
-    ...MOCK_EVENTS.find(e => e.eventId === MOCK_EVENT_ID),
+    ...baseEvent,
     reviewSummary: 4.0,
     reviewCount: 263, 
     userReview: null, 

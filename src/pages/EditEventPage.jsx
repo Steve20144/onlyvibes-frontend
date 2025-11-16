@@ -11,20 +11,26 @@ export const EditEventPage = () => {
   const [formData, setFormData] = useState({ title: '', description: '', location: '', dateTime: '' });
   const [isSaving, setIsSaving] = useState(false);
 
-  // Load existing event data (Given I have an existing event)
+  // Load existing event data 
   useEffect(() => {
     const loadEvent = async () => {
       try {
         const data = await fetchEventDetails(eventId);
         setEvent(data);
+        
+        // Format the date/time for the HTML input field
+        const formattedDateTime = data.dateTime ? new Date(data.dateTime).toISOString().substring(0, 16) : ''; 
+
         setFormData({
             title: data.title || '',
             description: data.description || '',
             location: data.location || '',
-            dateTime: data.dateTime ? data.dateTime.substring(0, 16) : '' // Format for datetime-local
+            dateTime: formattedDateTime
         });
       } catch (error) {
         console.error("Error loading event for edit:", error);
+        // CRITICAL FIX: Set event to null on failure
+        setEvent(null); 
         alert('Could not load event.');
       } finally {
         setIsLoading(false);
@@ -33,13 +39,13 @@ export const EditEventPage = () => {
     loadEvent();
   }, [eventId]);
 
-  // Handle input change (And I change the event details)
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle Save (Then I save the changes)
+  // Handle Save (PUT /events/{eventId})
   const handleSave = async (e) => {
     e.preventDefault();
     setIsSaving(true);
@@ -51,20 +57,23 @@ export const EditEventPage = () => {
     }
 
     try {
+        // Send the complete payload, including non-edited mock fields
         const updatedEvent = await updateEventDetails(eventId, {
             ...formData,
+            // These properties are required by the backend schema but might not be in the form
             category: event.category, 
             creatorId: event.creatorId,
             imageUrl: event.imageUrl 
         });
         
-        // And the new event details must be displayed
+        // User Story: Then I save the changes / And the new event details must be displayed
         alert(`Event ${updatedEvent.title} updated successfully!`);
-        navigate(`/events/${eventId}`); // Redirect back to details page
+        navigate(`/events/${eventId}`); 
         
     } catch (error) {
         console.error("Error saving event:", error);
-        alert('Failed to save changes.');
+        // FIX: Display the error message clearly
+        alert('Failed to save changes: ' + error.message);
     } finally {
         setIsSaving(false);
     }
@@ -81,7 +90,6 @@ export const EditEventPage = () => {
         
         {/* Mockup: Photo Gallery */}
         <div className="photo-gallery" style={{marginBottom: '20px', position: 'relative'}}>
-            {/* Display first 6 photos or placeholders */}
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px'}}>
                 {event.photos && event.photos.slice(0, 6).map((p, i) => (
                     <img key={i} src={`https://picsum.photos/100/100?random=${eventId}-${i}`} alt={`Event photo ${i+1}`} style={{width: '100%', height: '100%', objectFit: 'cover'}}/>
