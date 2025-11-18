@@ -1,6 +1,7 @@
 // src/api/mockData.js
 // Dummy/Static Data for OnlyVibes Frontend
 
+// --- 1. Constants ---
 export const MOCK_USER_ID = "user123";
 export const MOCK_REVIEW_ID = "review99";
 export const MOCK_EVENT_ID_EDITABLE_1 = 404; // Κεντρικό event για reviews/edit

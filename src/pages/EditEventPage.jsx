@@ -56,8 +56,10 @@ export const EditEventPage = () => {
     }
 
     try {
+        // Send the complete payload, including non-edited mock fields
         const updatedEvent = await updateEventDetails(eventId, {
             ...formData,
+            // These properties are required by the backend schema but might not be in the form
             category: event.category, 
             creatorId: event.creatorId,
             imageUrl: event.imageUrl 
