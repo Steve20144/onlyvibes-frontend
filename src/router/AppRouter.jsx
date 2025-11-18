@@ -15,12 +15,10 @@ import { SearchPage } from "../pages/SearchPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { OrganizedEventsPage } from '../pages/OrganizedEventsPage';
 import { EventDetailsPage } from "../pages/EventDetailsPage";
-import { EditEventPage } from "../pages/EditEventPage"; 
 import ProtectedRoute from "./ProtectedRoute"; // or however you implemented it
 import LikedEventsPage from "../pages/LikedEventsPage";
 import ReviewedEventsPage from "../pages/ReviewedEventsPage";
 import {EditEventPage} from "../pages/EditEventPage";
-import {OrganizedEventsPage} from "../pages/OrganizedEventsPage";
 
 
 // Helper to enforce login (χρησιμοποιεί το useAuth για έλεγχο ταυτότητας)
