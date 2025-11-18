@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchEventDetails, updateEventDetails } from '../api/eventService'; 
+import { confirm, alert } from '../components/PopupDialog'; // <--- NEW IMPORT
 
 export const EditEventPage = () => {
   const { eventId } = useParams();
@@ -29,15 +30,17 @@ export const EditEventPage = () => {
         });
       } catch (error) {
         console.error("Error loading event for edit:", error);
-        // CRITICAL FIX: Set event to null on failure
         setEvent(null); 
-        alert('Could not load event.');
+        
+        // REPLACED: Native alert
+        await alert('Could not load event data from the server.', 'Error');
+        navigate(-1); // Go back if we can't load
       } finally {
         setIsLoading(false);
       }
     };
     loadEvent();
-  }, [eventId]);
+  }, [eventId, navigate]);
 
   // Handle input change
   const handleChange = (e) => {
@@ -48,43 +51,57 @@ export const EditEventPage = () => {
   // Handle Save (PUT /events/{eventId})
   const handleSave = async (e) => {
     e.preventDefault();
-    setIsSaving(true);
     
+    // 1. Validation Popup
     if (!formData.title || !formData.location || !formData.dateTime) {
-        alert("Title, Location, and Date/Time are required.");
-        setIsSaving(false);
+        await alert("Title, Location, and Date/Time are required.", "Missing Fields");
         return;
     }
 
+    // 2. Confirmation Popup (Safety Check)
+    const isConfirmed = await confirm(
+        "Are you sure you want to update this event with these details?",
+        "Save Changes?"
+    );
+    
+    if (!isConfirmed) return;
+
+    setIsSaving(true);
+
     try {
-        // Send the complete payload, including non-edited mock fields
+        // Send the complete payload
         const updatedEvent = await updateEventDetails(eventId, {
             ...formData,
-            // These properties are required by the backend schema but might not be in the form
             category: event.category, 
             creatorId: event.creatorId,
             imageUrl: event.imageUrl 
         });
         
-        // User Story: Then I save the changes / And the new event details must be displayed
-        alert(`Event ${updatedEvent.title} updated successfully!`);
+        // 3. Success Popup
+        await alert(`Event "${updatedEvent.title}" updated successfully!`, "Success");
+        
         navigate(`/events/${eventId}`); 
         
     } catch (error) {
         console.error("Error saving event:", error);
-        // FIX: Display the error message clearly
-        alert('Failed to save changes: ' + error.message);
+        // 4. Error Popup
+        await alert('Failed to save changes: ' + error.message, "Error");
     } finally {
         setIsSaving(false);
     }
   };
 
-  if (isLoading) return <div className="page-container">Loading event data...</div>;
-  if (!event) return <div className="page-container">Event not found.</div>;
+  // --- HELPER FOR MOCK FEATURES ---
+  const handleMockFeature = async (featureName) => {
+    await alert(`The <b>${featureName}</b> feature is coming soon!`, "Under Construction");
+  };
+
+  if (isLoading) return <div className="page-container" style={{color:'white', padding:'20px'}}>Loading event data...</div>;
+  if (!event) return <div className="page-container" style={{color:'white', padding:'20px'}}>Event not found.</div>;
 
   return (
     <div className="page-container edit-event-page">
-      <h1 className="page-title">Edit Event Details</h1>
+      <h1 className="page-title" style={{color:'white', marginBottom:'20px'}}>Edit Event Details</h1>
       
       <form onSubmit={handleSave} className="edit-form">
         
@@ -96,14 +113,20 @@ export const EditEventPage = () => {
                 ))}
             </div>
             <div className="edit-photos-overlay" style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}}>
-                <button type="button" className="btn btn-secondary">Edit Photos</button>
+                <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => handleMockFeature("Photo Editor")}
+                >
+                    Edit Photos
+                </button>
             </div>
         </div>
 
-        <label htmlFor="title">Title</label>
-        <input id="title" type="text" name="title" value={formData.title} onChange={handleChange} />
+        <label htmlFor="title" style={{color:'#ccc'}}>Title</label>
+        <input id="title" type="text" name="title" value={formData.title} onChange={handleChange} style={inputStyle} />
 
-        <label htmlFor="description">Description</label>
+        <label htmlFor="description" style={{color:'#ccc'}}>Description</label>
         <textarea
           id="description"
           name="description"
@@ -111,43 +134,69 @@ export const EditEventPage = () => {
           onChange={handleChange}
           rows="5"
           className="review-input" 
+          style={{...inputStyle, height:'auto'}}
         />
 
-        <div className="info-item location-edit" onClick={() => console.log('Open Location Picker')}>
-            <span className="material-icons">place</span> 
+        <div className="info-item location-edit" onClick={() => handleMockFeature("Location Picker")} style={rowStyle}>
+            <span className="material-icons" style={{color:'white'}}>place</span> 
             <input 
               type="text" 
               name="location" 
               value={formData.location} 
               onChange={handleChange} 
-              style={{border: 'none', background: 'none', color: 'white', width: '80%'}}
+              style={{border: 'none', background: 'none', color: 'white', width: '80%', outline:'none'}}
               placeholder="Location"
+              onClick={(e) => e.stopPropagation()} // Allow typing without triggering popup
             />
-            <span className="material-icons arrow">chevron_right</span>
+            <span className="material-icons arrow" style={{color:'#666'}}>chevron_right</span>
         </div>
 
-        <div className="info-item datetime-edit" onClick={() => console.log('Open Date Picker')}>
-            <span className="material-icons">calendar_today</span> 
+        <div className="info-item datetime-edit" onClick={() => handleMockFeature("Date Picker UI")} style={rowStyle}>
+            <span className="material-icons" style={{color:'white'}}>calendar_today</span> 
             <input 
               type="datetime-local" 
               name="dateTime" 
               value={formData.dateTime} 
               onChange={handleChange} 
-              style={{border: 'none', background: 'none', color: 'white', width: '80%'}}
+              style={{border: 'none', background: 'none', color: 'white', width: '80%', outline:'none', colorScheme:'dark'}}
+              onClick={(e) => e.stopPropagation()} 
             />
-            <span className="material-icons arrow">chevron_right</span>
+            <span className="material-icons arrow" style={{color:'#666'}}>chevron_right</span>
         </div>
         
-        <div className="info-item categories" onClick={() => console.log('Open Category Picker')}>
-            <span className="material-icons">list</span> 
-            <p>See Categories</p>
-            <span className="material-icons arrow">chevron_right</span>
+        <div className="info-item categories" onClick={() => handleMockFeature("Category Selector")} style={rowStyle}>
+            <span className="material-icons" style={{color:'white'}}>list</span> 
+            <p style={{margin:0, color:'white'}}>See Categories</p>
+            <span className="material-icons arrow" style={{color:'#666'}}>chevron_right</span>
         </div>
         
-        <button type="submit" className="btn btn-primary full-width" disabled={isSaving}>
-          {isSaving ? 'Saving...' : 'Save Changes (PUT /events)'}
+        <button type="submit" className="btn btn-primary full-width" disabled={isSaving} style={{marginTop:'20px', padding:'15px', background:'#6C63FF', color:'white', border:'none', borderRadius:'12px', width:'100%', fontSize:'16px', fontWeight:'bold', cursor:'pointer'}}>
+          {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </form>
     </div>
   );
+};
+
+// Added some basic inline styles to ensure it renders decently if CSS is missing
+const inputStyle = {
+    width: '100%',
+    padding: '12px',
+    background: '#1a1a2e',
+    border: '1px solid #333',
+    borderRadius: '8px',
+    color: 'white',
+    marginBottom: '15px',
+    marginTop: '5px'
+};
+
+const rowStyle = {
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: '10px', 
+    padding: '15px', 
+    background: '#1a1a2e', 
+    borderRadius: '12px', 
+    marginBottom: '10px',
+    cursor: 'pointer'
 };

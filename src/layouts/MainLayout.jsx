@@ -1,8 +1,7 @@
 import React, { useState, useRef, useLayoutEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
-// Assuming your modal is at this path
-import PopupDialog from "../components/PopupDialog"; 
+import { confirm, alert } from "../components/PopupDialog"; // Your popup import
 
 const hideScrollbarStyle = `
   .no-scrollbar::-webkit-scrollbar {
@@ -21,7 +20,8 @@ export default function MainLayout() {
   const scrollRef = useRef(null);
   
   const [isDebug, setIsDebug] = useState(false);
-  const [showTestModal, setShowTestModal] = useState(false); 
+  
+  // REMOVED: const [showTestModal, setShowTestModal] = useState(false); <-- Not needed!
 
   useLayoutEffect(() => {
     // ... (your scroll logic) ...
@@ -29,6 +29,22 @@ export default function MainLayout() {
 
   const handleScroll = (e) => {
     // ... (your scroll logic) ...
+  };
+
+  // --- NEW: The function to trigger the popup ---
+  const handleTestClick = async () => {
+    // 1. Trigger the confirmation popup and wait for click
+    const result = await confirm(
+      "You are testing the new popup system.<br/>Does it look good?", 
+      "System Check"
+    );
+
+    // 2. Handle the result (True = Yes, False = No)
+    if (result) {
+      await alert("Awesome! You clicked <b>Yes</b>.", "Success");
+    } else {
+      console.log("User clicked No");
+    }
   };
 
   return (
@@ -51,7 +67,7 @@ export default function MainLayout() {
         position: 'absolute',
         top: '15px',
         right: '15px',
-        zIndex: 990, // <--- THIS IS THE FIX (was 99999)
+        zIndex: 990, 
         display: 'flex',
         flexDirection: 'column',
         gap: '5px'
@@ -63,8 +79,9 @@ export default function MainLayout() {
           Debug: {isDebug ? 'ON' : 'OFF'}
         </button>
         
+        {/* UPDATED BUTTON */}
         <button
-          onClick={() => setShowTestModal(true)}
+          onClick={handleTestClick} 
           style={debugButtonStyle('#333')}
         >
           Test Modal
@@ -97,15 +114,6 @@ export default function MainLayout() {
       }}>
         <BottomNav />
       </div>
-
-      {/* --- MODAL --- */}
-      <PopupDialog
-        show={showTestModal}
-        onClose={() => setShowTestModal(false)}
-        title="Test Modal"
-      >
-        This is a test modal triggered from the MainLayout.
-      </PopupDialog>
 
     </div>
   );

@@ -10,7 +10,9 @@ import {EventDetailsPage} from "../pages/EventDetailsPage";
 import ProtectedRoute from "./ProtectedRoute"; // or however you implemented it
 import LikedEventsPage from "../pages/LikedEventsPage";
 import ReviewedEventsPage from "../pages/ReviewedEventsPage";
-import OrganizedEventsPage from "../pages/OrganizedEventsPage";
+import {EditEventPage} from "../pages/EditEventPage";
+import {OrganizedEventsPage} from "../pages/OrganizedEventsPage";
+
 
 const AppRouter = () => (
   <Routes>
@@ -23,6 +25,7 @@ const AppRouter = () => (
       <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/events/:eventId" element={<ProtectedRoute><EventDetailsPage /></ProtectedRoute>} />
+      <Route path="/profile/events/:eventId/edit" element={<ProtectedRoute><EditEventPage /></ProtectedRoute>} />
       <Route path="/events/create" element={<ProtectedRoute><CreateEventPage /></ProtectedRoute>} />
       <Route path="/events/liked" element={<ProtectedRoute><LikedEventsPage /></ProtectedRoute>} />
       <Route path="/events/reviewed" element={<ProtectedRoute><ReviewedEventsPage /></ProtectedRoute>} />

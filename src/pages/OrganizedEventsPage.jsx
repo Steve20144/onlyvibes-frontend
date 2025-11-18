@@ -1,189 +1,94 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import EventList from "../components/EventList"; 
-import { useAuth } from "../auth/AuthContext"; // 1. Import useAuth
+// src/pages/OrganizedEventsPage.jsx
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { MOCK_EVENTS } from '../api/mockData';
+import { useAuth } from '../auth/AuthContext'; 
 
-// --- ALL YOUR DEMO EVENTS ---
-// 2. Added 'organizerId' to each event
-// Let's assume our logged-in user (Alice) has an ID of 2
-const DEMO_EVENTS = [
-  {
-    eventId: 1,
-    title: "Event Name",
-    venueName: "Big Club Downtown",
-    distanceKm: 0.1,
-    imageUrl: "https://images.pexels.com/photos/167636/pexels-photo-167636.jpeg",
-    likesCount: 125,
-    userHasLiked: false, 
-    userReview: null,
-    organizerId: 1, // Organized by "Bob"
-  },
-  {
-    eventId: 2,
-    title: "Event Name",
-    venueName: "Chandelier Bar",
-    distanceKm: 0.4,
-    imageUrl: "https://images.pexels.com/photos/2102568/pexels-photo-2102568.jpeg",
-    likesCount: 543,
-    userHasLiked: true, 
-    userReview: { rating: 5, comment: "Amazing!" },
-    organizerId: 2, // Organized by "Alice" (current user)
-  },
-  {
-    eventId: 3,
-    title: "Event Name",
-    venueName: "Underground Hall",
-    distanceKm: 0.3,
-    imageUrl: "https://summerrockz.com/wp-content/uploads/2024/03/Lloret-de-Mar-NightLife.jpeg",
-    likesCount: 342,
-    userHasLiked: false,
-    userReview: null,
-    organizerId: 1, // Organized by "Bob"
-  },
-  {
-    eventId: 4,
-    title: "Sunset Vibes",
-    venueName: "Beachside Lounge",
-    distanceKm: 1.2,
-    imageUrl: "https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg",
-    likesCount: 88,
-    userHasLiked: false,
-    userReview: null,
-    organizerId: 2, // Organized by "Alice" (current user)
-  },
-  // ... (the rest of your events) ...
-];
+// *** Import του νέου component ***
+import OrganizedEventCard from '../components/OrganizedEventCard'; 
 
-// 3. RENAMED COMPONENT
-const OrganizedEventsPage = () => {
-  const navigate = useNavigate(); 
-  const { user } = useAuth(); // 4. Get the logged-in user
+export const OrganizedEventsPage = () => {
+    const navigate = useNavigate();
+    const { getUserId } = useAuth();
+    const currentUserId = getUserId(); 
+    
+    const [organizedEvents, setOrganizedEvents] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-  // This is a fallback. In your real app, 'user.id' would come from the context
-  const CURRENT_USER_ID = user?.id || 2; 
+    useEffect(() => {
+        // MOCK LOGIC: Φιλτράρουμε τα events με creatorId: 3, που είναι τα events που μπορούμε να επεξεργαστούμε
+        const events = MOCK_EVENTS.filter(event => 
+            event.creatorId === 3 
+        ); 
+        
+        // Sorting: Ταξινομούμε κατά ημερομηνία
+        events.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
 
-  // 5. FILTERED INITIAL STATE
-  const [organizedEvents, setOrganizedEvents] = useState(
-    DEMO_EVENTS.filter(e => e.organizerId === CURRENT_USER_ID)
-  );
-  
-  const [displayedEvents, setDisplayedEvents] = useState(organizedEvents);
-  const [searchQuery, setSearchQuery] = useState("");
+        setOrganizedEvents(events);
+        setIsLoading(false);
+    }, [currentUserId]);
+    
+    // *** ΝΕΑ ΣΥΝΑΡΤΗΣΗ: Χειρίζεται την πλοήγηση ***
+    const handleCardClick = (eventId) => {
+        // Ορίζει την πλοήγηση στην Edit Page
+        navigate(`/profile/events/${eventId}/edit`);
+    };
 
-  const handleSearch = (e) => {
-    const q = e.target.value.toLowerCase();
-    setSearchQuery(q);
-    if (!q) {
-      setDisplayedEvents(organizedEvents);
-      return; 
-    }
-    const filtered = organizedEvents.filter(ev => ev.title.toLowerCase().includes(q) || ev.venueName.toLowerCase().includes(q));
-    setDisplayedEvents(filtered);
-  };
-
-  const handleClearFilters = () => {
-    setSearchQuery("");
-    setDisplayedEvents(organizedEvents);
-  };
-
-  // Liking/Unliking should still work on this page
-  const handleLike = (event) => {
-    setOrganizedEvents(prev => prev.map(e => {
-      if (e.eventId === event.eventId) {
-        const newLikedState = !e.userHasLiked;
-        const newLikesCount = newLikedState ? (e.likesCount || 0) + 1 : (e.likesCount || 0) - 1;
-        return { ...e, userHasLiked: newLikedState, likesCount: newLikesCount < 0 ? 0 : newLikesCount };
-      }
-      return e;
-    }));
-    setDisplayedEvents(prev => prev.map(e => {
-      if (e.eventId === event.eventId) {
-        const newLikedState = !e.userHasLiked;
-        const newLikesCount = newLikedState ? (e.likesCount || 0) + 1 : (e.likesCount || 0) - 1;
-        return { ...e, userHasLiked: newLikedState, likesCount: newLikesCount < 0 ? 0 : newLikesCount };
-      }
-      return e;
-    }));
-  };
-  
-  const handleEventClick = (eventId) => {
-    navigate(`/events/${eventId}`);
-  };
-
-  return (
-    <div style={{ 
-      width: '100%', 
-      height: 'auto', 
-      display: 'flex', 
-      flexDirection: 'column',
-    }}>
-      
-      {/* --- 1. STICKY HEADER --- */}
-      <div style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        backgroundColor: '#050016',
-        paddingTop: '10px',
-        paddingLeft: '20px',
-        paddingRight: '20px',
-        boxSizing: 'border-box',
-      }}>
-        {/* Search Bar */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
-          <input 
-            type="text"
-            placeholder="Search your events..." // 6. Changed placeholder
-            value={searchQuery}
-            onChange={handleSearch}
-            style={{
-              width: '100%', maxWidth: '300px', padding: '10px 15px', borderRadius: '20px',
-              border: 'none', backgroundColor: 'rgba(255, 255, 255, 0.1)', color: 'white',
-              textAlign: 'center', outline: 'none', fontSize: '16px'
-            }}
-          />
+    if (isLoading) return <div className="page-container">Loading Organized Events...</div>;
+    
+    return (
+        <div className="page-container organized-events-page" style={styles.pageContainer}>
+            {/* Header με Back Button */}
+            <div style={styles.header}>
+                <span className="material-icons" style={styles.backIcon} onClick={() => navigate('/profile')}>arrow_back</span>
+                <h1 style={styles.title}>Your Organized Events</h1>
+                <div style={{width: '24px'}}></div> 
+            </div>
+            
+            {organizedEvents.length > 0 ? (
+                organizedEvents.map(event => (
+                    // *** ΠΕΡΝΑΜΕ ΤΟΝ HANDLER ΣΤΟ CARD ***
+                    <OrganizedEventCard 
+                        key={event.eventId} 
+                        event={event} 
+                        onCardClick={handleCardClick} // <--- ΚΡΙΣΙΜΟ
+                    />
+                ))
+            ) : (
+                <p style={styles.noEvents}>You haven't organized any events yet.</p>
+            )}
         </div>
-
-        {/* Filter Row (You may want to remove this) */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'row', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          paddingBottom: '15px',
-          color: '#ccc', 
-          fontSize: '13px' 
-        }}>
-          <button style={{ background: 'none', border: '1px solid #555', borderRadius: '10px', color: 'white', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>Filters</button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span>🕒</span> 22:30</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span>📍</span> 1.5 km</div>
-          <button onClick={handleClearFilters} style={{ background: 'rgba(255,0,0,0.2)', border: 'none', borderRadius: '10px', color: '#ff9999', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>Clear</button>
-        </div>
-      </div>
-
-      {/* --- 2. SCROLLABLE EVENT LIST --- */}
-      <div style={{ 
-        width: '100%', 
-        paddingBottom: '80px',
-        paddingLeft: '20px',
-        paddingRight: '20px',
-        boxSizing: 'border-box',
-        marginTop: '10px'
-      }}>
-        {displayedEvents.length > 0 ? (
-          <EventList 
-            events={displayedEvents}
-            onLike={handleLike} 
-            onEventClick={handleEventClick}
-          />
-        ) : (
-          // 7. Updated empty state message
-          <p style={{ color: '#888', textAlign: 'center' }}>You haven't organized any events yet.</p>
-        )}
-      </div>
-
-    </div>
-  );
+    );
 };
 
-export default OrganizedEventsPage; // 8. Changed export
+// --- Styles for the page layout ---
+const styles = {
+    pageContainer: {
+        padding: '20px',
+        backgroundColor: '#120a24',
+        minHeight: '100vh',
+    },
+    header: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '20px',
+    },
+    title: {
+        fontSize: '22px',
+        color: 'white',
+        margin: 0,
+        flexGrow: 1,
+        textAlign: 'center',
+    },
+    backIcon: {
+        color: 'white',
+        fontSize: '24px',
+        cursor: 'pointer',
+    },
+    noEvents: {
+        textAlign: 'center',
+        color: '#aaaaaa',
+        marginTop: '50px',
+    }
+};
