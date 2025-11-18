@@ -1,12 +1,21 @@
+// src/router/AppRouter.jsx
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
+// Import AuthContext hook
+import { useAuth } from '../auth/AuthContext'; 
+
+// Imports for Pages
 import HomePage from "../pages/HomePage";
-import {SearchPage} from "../pages/SearchPage";
-import {ProfilePage} from "../pages/ProfilePage";
 import LoginPage from "../pages/LoginPage";
 import CreateEventPage from "../pages/CreateEventPage";
-import {EventDetailsPage} from "../pages/EventDetailsPage";
+
+// Named Exports
+import { SearchPage } from "../pages/SearchPage";
+import { ProfilePage } from "../pages/ProfilePage";
+import { OrganizedEventsPage } from '../pages/OrganizedEventsPage';
+import { EventDetailsPage } from "../pages/EventDetailsPage";
+import { EditEventPage } from "../pages/EditEventPage"; 
 import ProtectedRoute from "./ProtectedRoute"; // or however you implemented it
 import LikedEventsPage from "../pages/LikedEventsPage";
 import ReviewedEventsPage from "../pages/ReviewedEventsPage";
@@ -14,12 +23,19 @@ import {EditEventPage} from "../pages/EditEventPage";
 import {OrganizedEventsPage} from "../pages/OrganizedEventsPage";
 
 
+// Helper to enforce login (χρησιμοποιεί το useAuth για έλεγχο ταυτότητας)
+const AuthWrapper = ({ children }) => {
+    const { isAuthenticated } = useAuth();
+    return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+
 const AppRouter = () => (
   <Routes>
-    {/* public route */}
+    {/* PUBLIC ROUTE: Login */}
     <Route path="/login" element={<LoginPage />} />
 
-    {/* routes that share main layout */}
+    {/* ROUTES THAT SHARE MAIN LAYOUT AND REQUIRE AUTHENTICATION */}
     <Route element={<MainLayout />}>
       <Route index element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
       <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
@@ -33,6 +49,7 @@ const AppRouter = () => (
 
     </Route>
 
+    {/* Fallback 404 */}
     <Route path="*" element={<h1>404 Not Found</h1>} />
   </Routes>
 );

@@ -103,13 +103,19 @@ export const EditEventPage = () => {
     <div className="page-container edit-event-page">
       <h1 className="page-title" style={{color:'white', marginBottom:'20px'}}>Edit Event Details</h1>
       
-      <form onSubmit={handleSave} className="edit-form">
+      {/* HEADER BAR (Back Arrow & Debug Status) */}
+      <div style={styles.headerBar}>
+        <span className="material-icons" style={styles.backIcon} onClick={() => navigate(-1)}>arrow_back</span>
+        <span style={styles.debugStatus}>Debug: OFF</span>
+      </div>
+
+      <form onSubmit={handleSave} style={styles.formContainer}>
         
-        {/* Mockup: Photo Gallery */}
-        <div className="photo-gallery" style={{marginBottom: '20px', position: 'relative'}}>
-            <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px'}}>
+        {/* PHOTO GALLERY AREA (Mockup) */}
+        <div style={styles.photoGallery}>
+            <div style={styles.photoGrid}>
                 {event.photos && event.photos.slice(0, 6).map((p, i) => (
-                    <img key={i} src={`https://picsum.photos/100/100?random=${eventId}-${i}`} alt={`Event photo ${i+1}`} style={{width: '100%', height: '100%', objectFit: 'cover'}}/>
+                    <img key={i} src={`https://picsum.photos/120/120?random=${eventId}-${i}`} alt={`Event photo ${i+1}`} style={styles.photoItem}/>
                 ))}
             </div>
             <div className="edit-photos-overlay" style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}}>
@@ -163,6 +169,15 @@ export const EditEventPage = () => {
             />
             <span className="material-icons arrow" style={{color:'#666'}}>chevron_right</span>
         </div>
+
+        {/* 3. LOCATION FIELD (Mockup List Item) */}
+        <div style={styles.menuItem} onClick={() => console.log('Open Location Picker')}>
+            <span className="material-icons" style={styles.menuIconWhite}>place</span> 
+            <span style={styles.menuText}>{formData.location || 'Select Location'}</span>
+            <span className="material-icons" style={styles.menuChevron}>chevron_right</span>
+        </div>
+        
+        <div style={styles.divider} />
         
         <div className="info-item categories" onClick={() => handleMockFeature("Category Selector")} style={rowStyle}>
             <span className="material-icons" style={{color:'white'}}>list</span> 
@@ -174,6 +189,13 @@ export const EditEventPage = () => {
           {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </form>
+      
+      {/* Footer Navigation (for visual completion) */}
+      <div style={styles.bottomNavPlaceholder}>
+        <span className="material-icons">home</span>
+        <span className="material-icons">search</span>
+        <span className="material-icons">person</span>
+      </div>
     </div>
   );
 };
