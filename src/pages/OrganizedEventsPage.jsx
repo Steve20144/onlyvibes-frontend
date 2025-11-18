@@ -1,38 +1,94 @@
-// src/pages/OrganizedEventsPage.jsx (Νέο Αρχείο)
-import React, { useState } from 'react';
+// src/pages/OrganizedEventsPage.jsx
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { MOCK_EVENTS } from '../api/mockData';
-import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext'; 
+
+// *** Import του νέου component ***
+import OrganizedEventCard from '../components/OrganizedEventCard'; 
 
 export const OrganizedEventsPage = () => {
-    // Υποθέτουμε ότι εδώ θα κάναμε fetch από endpoint /accounts/{userId}/events
-    // Χρησιμοποιούμε MOCK_EVENTS για mockup 
-    const organizedEvents = MOCK_EVENTS.filter(e => e.creatorId !== 101); 
-    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+    const { getUserId } = useAuth();
+    const currentUserId = getUserId(); 
+    
+    const [organizedEvents, setOrganizedEvents] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // MOCK LOGIC: Φιλτράρουμε τα events με creatorId: 3, που είναι τα events που μπορούμε να επεξεργαστούμε
+        const events = MOCK_EVENTS.filter(event => 
+            event.creatorId === 3 
+        ); 
+        
+        // Sorting: Ταξινομούμε κατά ημερομηνία
+        events.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+
+        setOrganizedEvents(events);
+        setIsLoading(false);
+    }, [currentUserId]);
+    
+    // *** ΝΕΑ ΣΥΝΑΡΤΗΣΗ: Χειρίζεται την πλοήγηση ***
+    const handleCardClick = (eventId) => {
+        // Ορίζει την πλοήγηση στην Edit Page
+        navigate(`/events/${eventId}/edit`);
+    };
 
     if (isLoading) return <div className="page-container">Loading Organized Events...</div>;
     
     return (
-        <div className="page-container organized-events-page">
-            <h1 className="page-title">Your Organized Events</h1>
-            <p>Select an event to view or edit its details.</p>
+        <div className="page-container organized-events-page" style={styles.pageContainer}>
+            {/* Header με Back Button */}
+            <div style={styles.header}>
+                <span className="material-icons" style={styles.backIcon} onClick={() => navigate('/profile')}>arrow_back</span>
+                <h1 style={styles.title}>Your Organized Events</h1>
+                <div style={{width: '24px'}}></div> 
+            </div>
             
-            {organizedEvents.map(event => (
-                // Κάθε event card είναι ένας σύνδεσμος προς τη σελίδα λεπτομερειών/επεξεργασίας
-                <Link to={`/events/${event.eventId}/edit`} key={event.eventId} className="event-card-link">
-                    <div className="event-card event-card-organized">
-                        <img src={event.imageUrl} alt={event.title} className="event-image" />
-                        <div className="event-meta">
-                            <h4>{event.title}</h4>
-                            <p>📍 {event.location} | {new Date(event.dateTime).toLocaleDateString()}</p>
-                        </div>
-                        <span className="material-icons edit-icon">edit</span>
-                    </div>
-                </Link>
-            ))}
-            
-            {organizedEvents.length === 0 && (
-                <p style={{marginTop: '30px'}}>You haven't organized any events yet. <Link to="/create-event">Create one!</Link></p>
+            {organizedEvents.length > 0 ? (
+                organizedEvents.map(event => (
+                    // *** ΠΕΡΝΑΜΕ ΤΟΝ HANDLER ΣΤΟ CARD ***
+                    <OrganizedEventCard 
+                        key={event.eventId} 
+                        event={event} 
+                        onCardClick={handleCardClick} // <--- ΚΡΙΣΙΜΟ
+                    />
+                ))
+            ) : (
+                <p style={styles.noEvents}>You haven't organized any events yet.</p>
             )}
         </div>
     );
+};
+
+// --- Styles for the page layout ---
+const styles = {
+    pageContainer: {
+        padding: '20px',
+        backgroundColor: '#120a24',
+        minHeight: '100vh',
+    },
+    header: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '20px',
+    },
+    title: {
+        fontSize: '22px',
+        color: 'white',
+        margin: 0,
+        flexGrow: 1,
+        textAlign: 'center',
+    },
+    backIcon: {
+        color: 'white',
+        fontSize: '24px',
+        cursor: 'pointer',
+    },
+    noEvents: {
+        textAlign: 'center',
+        color: '#aaaaaa',
+        marginTop: '50px',
+    }
 };
