@@ -31,7 +31,7 @@ export const OrganizedEventsPage = () => {
     // *** ΝΕΑ ΣΥΝΑΡΤΗΣΗ: Χειρίζεται την πλοήγηση ***
     const handleCardClick = (eventId) => {
         // Ορίζει την πλοήγηση στην Edit Page
-        navigate(`/events/${eventId}/edit`);
+        navigate(`/profile/events/${eventId}/edit`);
     };
 
     if (isLoading) return <div className="page-container">Loading Organized Events...</div>;

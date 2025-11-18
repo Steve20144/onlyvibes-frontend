@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getEventDetailsWithReview, deleteReview, updateReview } from '../api/reviewService';
-import { ArrowLeft, Star, MapPin, Calendar, Clock, Trash2, Edit2, X } from 'lucide-react';
-import { ConfirmModal } from '../components/ConfirmModal';
+import { ArrowLeft, Star, MapPin, Calendar, Clock, Trash2, Edit2 } from 'lucide-react';
+import { confirm, alert } from '../components/PopupDialog'; // <--- NEW IMPORT
 
 // --- FALLBACK DATA (Prevents "Event Not Found" if API fails) ---
 const FALLBACK_EVENT = {
@@ -23,7 +23,9 @@ export const EventDetailsPage = () => {
   
   const [eventData, setEventData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
+  // REMOVED: const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
   const [newReviewText, setNewReviewText] = useState('');
   const [newRating, setNewRating] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
@@ -56,36 +58,57 @@ export const EventDetailsPage = () => {
     fetchEvent();
   }, [eventId]);
 
+  // --- REFACTORED DELETE LOGIC ---
   const handleDeleteReview = async () => {
+    // 1. Trigger Confirmation Popup
+    const isConfirmed = await confirm(
+      "You are about to delete this review.<br/>This action cannot be undone.<br/>Are you sure?",
+      "Delete Review?"
+    );
+
+    // 2. If User clicked "No", stop here.
+    if (!isConfirmed) return;
+
     try {
         await deleteReview(eventId, eventData.userReview.reviewId);
         
         setEventData(prev => ({ ...prev, userReview: null }));
-        setShowDeleteModal(false);
         setNewReviewText('');
         setNewRating(0);
+        
+        // Optional: Show Success Popup
+        await alert("Review deleted successfully.", "Deleted");
+
     } catch (error) {
         console.error("Error deleting review:", error);
+        // Handle fallback cleanup even on error if needed
         setEventData(prev => ({ ...prev, userReview: null }));
-        setShowDeleteModal(false);
         setNewReviewText('');
         setNewRating(0);
     }
   };
 
+  // --- REFACTORED SUBMIT LOGIC ---
   const handleReviewSubmission = async () => {
-    if (newRating === 0) { alert("Please provide a star rating."); return; }
+    if (newRating === 0) { 
+      await alert("Please provide a star rating.", "Rating Required"); 
+      return; 
+    }
     
     const reviewData = { rating: newRating, comment: newReviewText };
     try {
         const updatedData = await updateReview(eventId, eventData.userReview?.reviewId, reviewData);
         setEventData(updatedData || { ...eventData, userReview: { ...reviewData, reviewId: 999 } });
         setIsEditing(false);
-        alert(eventData.userReview ? 'Review updated!' : 'Review submitted!');
+        
+        await alert(eventData.userReview ? 'Review updated!' : 'Review submitted!', "Success");
     } catch (error) {
         console.error("Submission failed:", error);
         setEventData(prev => ({ ...prev, userReview: { ...reviewData, reviewId: Date.now() } }));
         setIsEditing(false);
+        
+        // Optional: Notify user it was saved locally/offline
+        await alert("Review saved locally (Demo Mode)", "Offline");
     }
   };
 
@@ -138,7 +161,11 @@ export const EventDetailsPage = () => {
                 {hasSubmittedReview && !isEditing && (
                    <div style={{ display: 'flex', gap: '10px' }}>
                       <button onClick={() => setIsEditing(true)} style={{background:'none', border:'none', color:'#ccc', cursor:'pointer'}}><Edit2 size={18}/></button>
-                      <button onClick={() => setShowDeleteModal(true)} style={{background:'none', border:'none', color:'#ff6b6b', cursor:'pointer'}}><Trash2 size={18}/></button>
+                      
+                      {/* REFACTORED DELETE BUTTON */}
+                      <button onClick={handleDeleteReview} style={{background:'none', border:'none', color:'#ff6b6b', cursor:'pointer'}}>
+                        <Trash2 size={18}/>
+                      </button>
                    </div>
                 )}
             </div>
@@ -149,7 +176,6 @@ export const EventDetailsPage = () => {
                     display: 'flex', 
                     flexDirection: 'column', 
                     gap: '15px',
-                    // ADDED: Centering for symmetry
                     alignItems: 'center', 
                     textAlign: 'center' 
                 }}>
@@ -170,8 +196,8 @@ export const EventDetailsPage = () => {
                         onChange={(e) => setNewReviewText(e.target.value)} 
                         placeholder="How was the vibe?"
                         style={{ 
-                            width: '100%', // Max width of parent
-                            maxWidth: '300px', // ADDED: Constraint for symmetry
+                            width: '100%',
+                            maxWidth: '300px',
                             height: '80px', 
                             borderRadius: '12px', 
                             background: '#000', 
@@ -179,12 +205,11 @@ export const EventDetailsPage = () => {
                             color: 'white', 
                             padding: '10px', 
                             outline: 'none',
-                            // ADDED: Centering text area
                             margin: '0 auto' 
                         }}
                     />
                     {/* Buttons */}
-                    <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '300px' }}> {/* ADDED: Max width for symmetry */}
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '300px' }}>
                          {isEditing && <button onClick={() => setIsEditing(false)} style={{...btnStyle, background:'#333'}}>Cancel</button>}
                          <button onClick={handleReviewSubmission} style={{...btnStyle, background:'#6C63FF'}}>
                              {isEditing ? 'Update' : 'Submit'}
@@ -193,30 +218,20 @@ export const EventDetailsPage = () => {
                 </div>
             ) : (
                 // View Submitted Review
-                <div style={{ textAlign: 'center' }}> {/* ADDED: Centering for symmetry */}
-                     <div style={{ display: 'flex', marginBottom: '10px', justifyContent: 'center' }}> {/* ADDED: Centering stars */}
+                <div style={{ textAlign: 'center' }}>
+                     <div style={{ display: 'flex', marginBottom: '10px', justifyContent: 'center' }}>
                         {[1,2,3,4,5].map(star => (
                             <Star key={star} size={20} fill={star <= eventData.userReview.rating ? "#FFD700" : "none"} color={star <= eventData.userReview.rating ? "#FFD700" : "#555"} />
                         ))}
                      </div>
-                     <p style={{ color: '#ddd', fontStyle: 'italic', margin: '0 auto', maxWidth: '300px' }}>"{eventData.userReview.comment}"</p> {/* ADDED: Max width for symmetry */}
+                     <p style={{ color: '#ddd', fontStyle: 'italic', margin: '0 auto', maxWidth: '300px' }}>"{eventData.userReview.comment}"</p>
                 </div>
             )}
         </div>
 
       </div>
 
-      {/* Confirmation Modal */}
-      {showDeleteModal && (
-        <ConfirmModal
-            show={showDeleteModal}
-            onClose={() => setShowDeleteModal(false)}
-            onConfirm={handleDeleteReview}
-            message="You are about to delete this review. This action cannot be undone. Are you sure?" 
-            confirmText="Yes"
-            cancelText="No"
-        />
-      )}
+      {/* REMOVED: <ConfirmModal ... /> - No longer needed in JSX */}
 
     </div>
   );

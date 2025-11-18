@@ -1,7 +1,8 @@
 // src/pages/EditEventPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchEventDetails, updateEventDetails } from '../api/events'; 
+import { fetchEventDetails, updateEventDetails } from '../api/eventService'; 
+import { confirm, alert } from '../components/PopupDialog'; // <--- NEW IMPORT
 
 export const EditEventPage = () => {
   const { eventId } = useParams();
@@ -30,13 +31,16 @@ export const EditEventPage = () => {
       } catch (error) {
         console.error("Error loading event for edit:", error);
         setEvent(null); 
-        alert('Could not load event.');
+        
+        // REPLACED: Native alert
+        await alert('Could not load event data from the server.', 'Error');
+        navigate(-1); // Go back if we can't load
       } finally {
         setIsLoading(false);
       }
     };
     loadEvent();
-  }, [eventId]);
+  }, [eventId, navigate]);
 
   // Handle input change
   const handleChange = (e) => {
@@ -47,40 +51,57 @@ export const EditEventPage = () => {
   // Handle Save (PUT /events/{eventId})
   const handleSave = async (e) => {
     e.preventDefault();
-    setIsSaving(true);
     
+    // 1. Validation Popup
     if (!formData.title || !formData.location || !formData.dateTime) {
-        alert("Title, Location, and Date/Time are required.");
-        setIsSaving(false);
+        await alert("Title, Location, and Date/Time are required.", "Missing Fields");
         return;
     }
 
+    // 2. Confirmation Popup (Safety Check)
+    const isConfirmed = await confirm(
+        "Are you sure you want to update this event with these details?",
+        "Save Changes?"
+    );
+    
+    if (!isConfirmed) return;
+
+    setIsSaving(true);
+
     try {
-        // Send the complete payload, including non-edited mock fields
+        // Send the complete payload
         const updatedEvent = await updateEventDetails(eventId, {
             ...formData,
-            // These properties are required by the backend schema but might not be in the form
             category: event.category, 
             creatorId: event.creatorId,
             imageUrl: event.imageUrl 
         });
         
-        alert(`Event ${updatedEvent.title} updated successfully!`);
+        // 3. Success Popup
+        await alert(`Event "${updatedEvent.title}" updated successfully!`, "Success");
+        
         navigate(`/events/${eventId}`); 
         
     } catch (error) {
         console.error("Error saving event:", error);
-        alert('Failed to save changes: ' + error.message);
+        // 4. Error Popup
+        await alert('Failed to save changes: ' + error.message, "Error");
     } finally {
         setIsSaving(false);
     }
   };
 
-  if (isLoading) return <div style={styles.pageContainer}>Loading event data...</div>;
-  if (!event) return <div style={styles.pageContainer}>Event not found.</div>;
+  // --- HELPER FOR MOCK FEATURES ---
+  const handleMockFeature = async (featureName) => {
+    await alert(`The <b>${featureName}</b> feature is coming soon!`, "Under Construction");
+  };
+
+  if (isLoading) return <div className="page-container" style={{color:'white', padding:'20px'}}>Loading event data...</div>;
+  if (!event) return <div className="page-container" style={{color:'white', padding:'20px'}}>Event not found.</div>;
 
   return (
-    <div style={styles.pageContainer}>
+    <div className="page-container edit-event-page">
+      <h1 className="page-title" style={{color:'white', marginBottom:'20px'}}>Edit Event Details</h1>
       
       {/* HEADER BAR (Back Arrow & Debug Status) */}
       <div style={styles.headerBar}>
@@ -97,35 +118,56 @@ export const EditEventPage = () => {
                     <img key={i} src={`https://picsum.photos/120/120?random=${eventId}-${i}`} alt={`Event photo ${i+1}`} style={styles.photoItem}/>
                 ))}
             </div>
-            {/* Edit Photos Button */}
-            <button type="button" style={styles.editPhotosButton}>Edit Photos</button>
+            <div className="edit-photos-overlay" style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}}>
+                <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    onClick={() => handleMockFeature("Photo Editor")}
+                >
+                    Edit Photos
+                </button>
+            </div>
         </div>
-        
-        {/* 1. TITLE INPUT (Styled to match mockup) */}
-        <div style={styles.inputGroup}>
-            <label htmlFor="title" style={styles.smallLabel}>Title</label>
+
+        <label htmlFor="title" style={{color:'#ccc'}}>Title</label>
+        <input id="title" type="text" name="title" value={formData.title} onChange={handleChange} style={inputStyle} />
+
+        <label htmlFor="description" style={{color:'#ccc'}}>Description</label>
+        <textarea
+          id="description"
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          rows="5"
+          className="review-input" 
+          style={{...inputStyle, height:'auto'}}
+        />
+
+        <div className="info-item location-edit" onClick={() => handleMockFeature("Location Picker")} style={rowStyle}>
+            <span className="material-icons" style={{color:'white'}}>place</span> 
             <input 
-                id="title" 
-                type="text" 
-                name="title" 
-                value={formData.title} 
-                onChange={handleChange} 
-                style={styles.titleInput} 
-                placeholder="Enter event title"
+              type="text" 
+              name="location" 
+              value={formData.location} 
+              onChange={handleChange} 
+              style={{border: 'none', background: 'none', color: 'white', width: '80%', outline:'none'}}
+              placeholder="Location"
+              onClick={(e) => e.stopPropagation()} // Allow typing without triggering popup
             />
+            <span className="material-icons arrow" style={{color:'#666'}}>chevron_right</span>
         </div>
-        
-        {/* 2. DESCRIPTION INPUT (Mockup) */}
-        <div style={styles.inputGroup}>
-            <label htmlFor="description" style={styles.label}>Description</label>
-            <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows="5"
-                style={styles.descriptionTextarea} 
+
+        <div className="info-item datetime-edit" onClick={() => handleMockFeature("Date Picker UI")} style={rowStyle}>
+            <span className="material-icons" style={{color:'white'}}>calendar_today</span> 
+            <input 
+              type="datetime-local" 
+              name="dateTime" 
+              value={formData.dateTime} 
+              onChange={handleChange} 
+              style={{border: 'none', background: 'none', color: 'white', width: '80%', outline:'none', colorScheme:'dark'}}
+              onClick={(e) => e.stopPropagation()} 
             />
+            <span className="material-icons arrow" style={{color:'#666'}}>chevron_right</span>
         </div>
 
         {/* 3. LOCATION FIELD (Mockup List Item) */}
@@ -137,29 +179,13 @@ export const EditEventPage = () => {
         
         <div style={styles.divider} />
         
-        {/* 4. DATE & TIME FIELD (Mockup List Item) */}
-        <div style={styles.menuItem} onClick={() => console.log('Open Date Picker')}>
-            <span className="material-icons" style={styles.menuIconWhite}>calendar_today</span> 
-            {/* Display formatted date/time */}
-            <span style={styles.menuText}>{formData.dateTime ? new Date(formData.dateTime).toLocaleString('en-US', { day: 'numeric', month: 'numeric', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }).replace(',', '') : 'Select Date & Time'}</span>
-            <span className="material-icons" style={styles.menuChevron}>chevron_right</span>
+        <div className="info-item categories" onClick={() => handleMockFeature("Category Selector")} style={rowStyle}>
+            <span className="material-icons" style={{color:'white'}}>list</span> 
+            <p style={{margin:0, color:'white'}}>See Categories</p>
+            <span className="material-icons arrow" style={{color:'#666'}}>chevron_right</span>
         </div>
         
-        <div style={styles.divider} />
-
-        {/* 5. CATEGORIES FIELD (Mockup List Item) */}
-        <div style={styles.menuItem} onClick={() => console.log('Open Category Picker')}>
-            <span className="material-icons" style={styles.menuIconWhite}>list</span> 
-            <span style={styles.menuText}>See Categories</span>
-            {/* ΔΙΟΡΘΩΣΗ: Προσθήκη του chevron_right */}
-            <span className="material-icons" style={styles.menuChevron}>chevron_right</span>
-        </div>
-        
-        <div style={styles.divider} />
-        
-        {/* SAVE BUTTON */}
-        <button type="submit" className="btn btn-primary full-width" disabled={isSaving} style={styles.saveButton}>
-          {/* ΔΙΟΡΘΩΣΗ: Αφαίρεση του endpoint */}
+        <button type="submit" className="btn btn-primary full-width" disabled={isSaving} style={{marginTop:'20px', padding:'15px', background:'#6C63FF', color:'white', border:'none', borderRadius:'12px', width:'100%', fontSize:'16px', fontWeight:'bold', cursor:'pointer'}}>
           {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </form>
@@ -174,159 +200,25 @@ export const EditEventPage = () => {
   );
 };
 
+// Added some basic inline styles to ensure it renders decently if CSS is missing
+const inputStyle = {
+    width: '100%',
+    padding: '12px',
+    background: '#1a1a2e',
+    border: '1px solid #333',
+    borderRadius: '8px',
+    color: 'white',
+    marginBottom: '15px',
+    marginTop: '5px'
+};
 
-// --- Styles (Inline/Object Styles for clarity) ---
-const styles = {
-    pageContainer: {
-        backgroundColor: '#120a24',
-        minHeight: '100vh',
-        color: 'white',
-        paddingBottom: '80px',
-    },
-    headerBar: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '15px 20px',
-        backgroundColor: '#1e1330', // Dark bar
-    },
-    backIcon: {
-        color: 'white',
-        fontSize: '24px',
-        cursor: 'pointer',
-    },
-    debugStatus: {
-        color: '#a8a8a8',
-        fontSize: '12px',
-    },
-    formContainer: {
-        padding: '0 20px',
-    },
-    photoGallery: {
-        position: 'relative',
-        marginBottom: '20px',
-        borderRadius: '10px',
-        overflow: 'hidden',
-    },
-    photoGrid: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '2px',
-        height: '250px', 
-    },
-    photoItem: {
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover',
-    },
-    editPhotosButton: {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        padding: '10px 20px',
-        borderRadius: '20px',
-        border: 'none',
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        color: 'white',
-        fontWeight: 'bold',
-        backdropFilter: 'blur(5px)',
-        cursor: 'pointer',
-    },
-    inputGroup: {
-        marginBottom: '15px',
-    },
-    smallLabel: {
-        fontSize: '12px',
-        color: '#ccc',
-        display: 'block',
-        marginBottom: '5px',
-    },
-    label: {
-        fontSize: '16px',
-        fontWeight: 'bold',
-        color: 'white',
-        display: 'block',
-        marginBottom: '5px',
-    },
-    // Styles for Title Input to mimic the mockup's underlined title area
-    titleInput: {
-        fontSize: '24px',
-        fontWeight: 'bold',
-        color: 'white',
-        backgroundColor: 'transparent',
-        border: 'none',
-        borderBottom: '1px solid #4a2c73', 
-        padding: '5px 0',
-        width: '100%',
-        boxSizing: 'border-box',
-        marginBottom: '10px',
-        outline: 'none',
-    },
-    descriptionTextarea: {
-        width: '100%',
-        backgroundColor: '#1e1330',
-        color: 'white',
-        border: '1px solid #4a2c73', 
-        borderRadius: '8px',
-        padding: '10px',
-        resize: 'none',
-        boxSizing: 'border-box',
-        fontSize: '14px',
-        lineHeight: 1.5,
-    },
-    // Styles for List Items (Location, Date, Category)
-    menuItem: {
-        display: 'flex',
-        alignItems: 'center',
-        padding: '15px 0',
-        cursor: 'pointer',
-    },
-    menuIconWhite: {
-        fontSize: '20px',
-        color: 'white', // Λευκό
-        marginRight: '15px',
-    },
-    menuText: {
-        flex: 1,
-        fontSize: '16px',
-        color: 'white',
-    },
-    menuChevron: {
-        color: 'white', // Λευκό βέλος
-        marginLeft: 'auto',
-    },
-    divider: {
-        height: '1px',
-        backgroundColor: '#1e1330',
-        margin: '0 0',
-    },
-    saveButton: {
-        marginTop: '30px',
-        padding: '15px',
-        borderRadius: '30px',
-        // ΔΙΟΡΘΩΣΗ: Αλλαγή χρώματος σε Μοβ/Vibe
-        backgroundColor: '#6b48ff', 
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: '16px',
-        width: '100%',
-        border: 'none',
-        cursor: 'pointer',
-    },
-    bottomNavPlaceholder: {
-        position: 'fixed',
-        bottom: 0,
-        width: '100%',
-        maxWidth: '450px',
-        height: '60px',
-        display: 'flex',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        backgroundColor: '#1e1330',
-        borderTop: '1px solid #222',
-        zIndex: 999,
-        color: 'white',
-        fontSize: '24px'
-    }
+const rowStyle = {
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: '10px', 
+    padding: '15px', 
+    background: '#1a1a2e', 
+    borderRadius: '12px', 
+    marginBottom: '10px',
+    cursor: 'pointer'
 };
