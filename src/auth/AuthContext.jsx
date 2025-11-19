@@ -1,6 +1,6 @@
 // src/context/AuthContext.jsx
 import React, { createContext, useContext, useState } from 'react';
-import apiClient from '../api/apiClient';
+import api from '../api/client';
 import { MOCK_ACCOUNT } from '../api/mockData';
 import { ENDPOINTS, API_BASE_URL } from '../utils/constants';
 

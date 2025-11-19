@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import EventList from "../components/EventList"; 
-import { fetchEvents, toggleLikeEvent } from "../api/events"; // Assuming file is eventService.js
+import { getEvents, likeEvent } from "../api/events"; // Assuming file is eventService.js
 import { alert } from "../components/PopupDialog";
 
 // No longer need static DEMO_EVENTS
@@ -19,7 +19,7 @@ const HomePage = () => {
     setError(null);
     setIsLoading(true);
     try {
-      const data = await fetchEvents(filters);
+      const data = await getEvents(filters);
       setEvents(data || []); // Ensure it's an array
     } catch (err) {
       console.error("Failed to load events:", err);
@@ -68,7 +68,7 @@ const HomePage = () => {
 
     try {
       // API Call: Toggle the like status
-      await toggleLikeEvent(eventId);
+      await likeEvent(eventId);
     } catch (error) {
       console.error("Like failed, reverting UI:", error);
       // Revert the UI state if API fails

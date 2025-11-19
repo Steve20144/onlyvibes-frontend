@@ -1,5 +1,5 @@
 // src/api/events.js - ΕΝΟΠΟΙΗΜΕΝΟ SERVICE
-import { client } from './apiClient'; // Assuming 'api' is now imported as 'client' or aliased.
+import api from './client'; // Assuming 'api' is now imported as 'client' or aliased.
 // We no longer need MOCK_EVENT_ID_EDITABLE_1, MOCK_EVENTS, MOCK_EVENT_DETAILS_WITH_REVIEW
 // import { ... } from './mockData'; 
 
@@ -11,14 +11,14 @@ import { client } from './apiClient'; // Assuming 'api' is now imported as 'clie
 // Renaming to the standard API function name for clarity
 export const fetchEventDetails = async (eventId) => {
     // 🔥 REAL API CALL: GET /api/events/{eventId}
-    const data = await client(`/events/${eventId}`); 
+    const data = await api(`/events/${eventId}`); 
     return data;
 };
 
 // Endpoint: PUT /events/{eventId} (Update Event Details)
 export const updateEventDetails = async (eventId, updatedEventData) => {
     // 🔥 REAL API CALL: PUT /api/events/{eventId}
-    const data = await client(`/events/${eventId}`, { 
+    const data = await api(`/events/${eventId}`, { 
         method: 'PUT',
         body: updatedEventData 
     });
@@ -33,7 +33,7 @@ export const updateEventDetails = async (eventId, updatedEventData) => {
 export async function getEvents(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();
     // 🔥 REAL API CALL: GET /api/events?filter=...
-    const data = await client(`/events?${queryParams}`);
+    const data = await api(`/events?${queryParams}`);
     return data; // array of Event
 }
 
@@ -43,26 +43,26 @@ export const getEventById = fetchEventDetails;
 // POST /api/events (Create Event)
 export const createEvent = async (payload) => {
     // 🔥 REAL API CALL: POST /api/events
-    const data = await client("/events", { method: 'POST', body: payload });
+    const data = await api("/events", { method: 'POST', body: payload });
     return data;
 };
 
 // POST /api/events/:eventId/like (Like)
 export const likeEvent = async (eventId) => {
     // 🔥 REAL API CALL: POST /api/events/{eventId}/like
-    await client(`/events/${eventId}/like`, { method: 'POST' });
+    await api(`/events/${eventId}/like`, { method: 'POST' });
 };
 
 // DELETE /api/events/:eventId/like (Unlike - Assumed standard REST endpoint)
 export async function unlikeEvent(eventId) {
     // 🔥 REAL API CALL: DELETE /api/events/{eventId}/like
-    await client(`/events/${eventId}/like`, { method: 'DELETE' });
+    await api(`/events/${eventId}/like`, { method: 'DELETE' });
 }
 
 // GET /api/events/:eventId/likes (Fetch Likes)
 export const getEventLikes = async (eventId) => {
     // 🔥 REAL API CALL: GET /api/events/{eventId}/likes
-    const data = await client(`/events/${eventId}/likes`);
+    const data = await api(`/events/${eventId}/likes`);
     return data;
 };
 
@@ -73,14 +73,14 @@ export const getEventLikes = async (eventId) => {
 // GET /api/events/:eventId/reviews (Fetch Reviews for event)
 export async function getReviews(eventId) {
     // 🔥 REAL API CALL: GET /api/events/{eventId}/reviews
-    const data = await client(`/events/${eventId}/reviews`);
+    const data = await api(`/events/${eventId}/reviews`);
     return data; // array of Review
 }
 
 // POST /api/events/:eventId/reviews (Submit Review)
 export async function createReview(eventId, review) {
     // 🔥 REAL API CALL: POST /api/events/{eventId}/reviews
-    const data = await client(`/events/${eventId}/reviews`, { method: 'POST', body: review });
+    const data = await api(`/events/${eventId}/reviews`, { method: 'POST', body: review });
     return data;
 }
 

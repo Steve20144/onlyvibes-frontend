@@ -1,5 +1,5 @@
 // src/api/reviewService.js
-import apiClient from './apiClient';
+import api from './client';
 import { ENDPOINTS } from '../utils/constants';
 
 // *** ΕΙΣΑΓΩΓΗ ΟΛΩΝ ΤΩΝ ΣΤΑΘΕΡΩΝ ***

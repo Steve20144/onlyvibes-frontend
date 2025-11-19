@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 // I assumed your file is named eventService based on previous context
-import { fetchEventDetails, updateEventDetails } from '../api/eventService'; 
+import { getEvents, updateEventDetails } from '../api/events'; 
 import { confirm, alert } from '../components/PopupDialog'; // <--- NEW IMPORT
 
 export const EditEventPage = () => {
@@ -17,7 +17,7 @@ export const EditEventPage = () => {
   useEffect(() => {
     const loadEvent = async () => {
       try {
-        const data = await fetchEventDetails(eventId);
+        const data = await getEvents(eventId);
         setEvent(data);
         
         // Format the date/time for the HTML input field
