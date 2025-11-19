@@ -30,11 +30,51 @@ export const updateEventDetails = async (eventId, updatedEventData) => {
 // =========================================================
 
 // GET /api/events with optional filters (Browse Events)
+const mapEvent = (apiData) => {
+  // Check what data the mapper receives for a single item
+  console.log("⚙️  MAPPER: Processing item:", apiData._id, apiData.title); 
+
+  if (!apiData) return null;
+  
+  const mappedItem = {
+    eventId: apiData.id || apiData._id, 
+    title: apiData.title,
+    // ... other properties
+    venueName: apiData.venueName || "Unknown Venue"
+  };
+  
+  return mappedItem;
+};
+
+// --- 2. THE FETCH FUNCTION ---
 export async function getEvents(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();
-    // 🔥 REAL API CALL: GET /api/events?filter=...
-    const data = await api(`/events?${queryParams}`);
-    return data; // array of Event
+    
+    try {
+        // Assuming your client returns the full response object with the 'data' property
+        const fullResponse = await api(`/events?${queryParams}`);
+        
+        // 🛑 DEBUG PRINT 1: Check the structure of the RAW API response
+        console.log("🛑 API RESPONSE RAW:", fullResponse); 
+
+        // CRITICAL FIX: Access the inner 'data' property
+        const apiPayload = fullResponse.data; 
+
+        if (apiPayload && Array.isArray(apiPayload.data)) {
+            // 🛑 DEBUG PRINT 2: Success! Now we have the correct array.
+            console.log(`🛑 API SUCCESS: Found ${apiPayload.data.length} items. Starting map.`); 
+            
+            // Map the array nested inside apiPayload.data
+            return apiPayload.data.map(mapEvent); 
+        }
+        
+        // 🛑 DEBUG PRINT 3: If 'data' is missing or wrong type
+        console.warn("🛑 API WARNING: Response structure invalid or data is not an array.");
+        return []; 
+    } catch (error) {
+        // ...
+        throw error;
+    }
 }
 
 // Alias for fetching a single event

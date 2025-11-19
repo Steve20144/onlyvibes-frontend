@@ -19,13 +19,14 @@ const HomePage = () => {
     setError(null);
     setIsLoading(true);
     try {
-      const data = await getEvents(filters);
-      setEvents(data || []); // Ensure it's an array
+      // fetchEvents now returns the clean array directly!
+      const eventArray = await getEvents(filters); 
+      
+      // setEvents gets the clean array or an empty array
+      setEvents(eventArray); 
+      
     } catch (err) {
-      console.error("Failed to load events:", err);
-      setError(err.message || "Could not load events from server.");
-      // Use the custom alert popup
-      await alert("Failed to load events. Please check the network.", "Error");
+      // ... existing error handling ...
     } finally {
       setIsLoading(false);
     }

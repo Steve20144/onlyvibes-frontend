@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.BACKEND_URL || "http://localhost:8080",
+  baseURL: process.env.BACKEND_URL || "https://onlyvibes-backend.onrender.com/",
   headers: {
     "Content-Type": "application/json"
   }
