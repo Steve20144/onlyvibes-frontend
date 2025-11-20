@@ -7,18 +7,18 @@
 // // 1. EVENT DETAILS (Used by EventDetailsPage/EditEventPage)
 // // =========================================================
 
-// // Endpoint: GET /events/{eventId}
+// // Endpoint: GET /events/{id}
 // // Renaming to the standard API function name for clarity
-// export const fetchEventDetails = async (eventId) => {
-//     // 🔥 REAL API CALL: GET /api/events/{eventId}
-//     const data = await api(`/events/${eventId}`); 
+// export const fetchEventDetails = async (id) => {
+//     // 🔥 REAL API CALL: GET /api/events/{id}
+//     const data = await api(`/events/${id}`); 
 //     return data;
 // };
 
-// // Endpoint: PUT /events/{eventId} (Update Event Details)
-// export const updateEventDetails = async (eventId, updatedEventData) => {
-//     // 🔥 REAL API CALL: PUT /api/events/{eventId}
-//     const data = await api(`/events/${eventId}`, { 
+// // Endpoint: PUT /events/{id} (Update Event Details)
+// export const updateEventDetails = async (id, updatedEventData) => {
+//     // 🔥 REAL API CALL: PUT /api/events/{id}
+//     const data = await api(`/events/${id}`, { 
 //         method: 'PUT',
 //         body: updatedEventData 
 //     });
@@ -81,8 +81,8 @@
 //     const finalPayload = {
 //         ...payload,
 //         creatorId: creatorId,
-//         // Remove the temporary eventId if frontend was generating it
-//         // eventId: undefined, 
+//         // Remove the temporary id if frontend was generating it
+//         // id: undefined, 
 //     };
 
 //     try {
@@ -100,22 +100,22 @@
 //     }
 // };
 
-// // POST /api/events/:eventId/like (Like)
-// export const likeEvent = async (eventId) => {
-//     // 🔥 REAL API CALL: POST /api/events/{eventId}/like
-//     await api(`/events/${eventId}/like`, { method: 'POST' });
+// // POST /api/events/:id/like (Like)
+// export const likeEvent = async (id) => {
+//     // 🔥 REAL API CALL: POST /api/events/{id}/like
+//     await api(`/events/${id}/like`, { method: 'POST' });
 // };
 
-// // DELETE /api/events/:eventId/like (Unlike - Assumed standard REST endpoint)
-// export async function unlikeEvent(eventId) {
-//     // 🔥 REAL API CALL: DELETE /api/events/{eventId}/like
-//     await api(`/events/${eventId}/like`, { method: 'DELETE' });
+// // DELETE /api/events/:id/like (Unlike - Assumed standard REST endpoint)
+// export async function unlikeEvent(id) {
+//     // 🔥 REAL API CALL: DELETE /api/events/{id}/like
+//     await api(`/events/${id}/like`, { method: 'DELETE' });
 // }
 
-// // GET /api/events/:eventId/likes (Fetch Likes)
-// export const getEventLikes = async (eventId) => {
-//     // 🔥 REAL API CALL: GET /api/events/{eventId}/likes
-//     const data = await api(`/events/${eventId}/likes`);
+// // GET /api/events/:id/likes (Fetch Likes)
+// export const getEventLikes = async (id) => {
+//     // 🔥 REAL API CALL: GET /api/events/{id}/likes
+//     const data = await api(`/events/${id}/likes`);
 //     return data;
 // };
 
@@ -123,17 +123,17 @@
 // // 3. REVIEWS (Moving Review endpoints to Event Service for integration)
 // // =========================================================
 
-// // GET /api/events/:eventId/reviews (Fetch Reviews for event)
-// export async function getReviews(eventId) {
-//     // 🔥 REAL API CALL: GET /api/events/{eventId}/reviews
-//     const data = await api(`/events/${eventId}/reviews`);
+// // GET /api/events/:id/reviews (Fetch Reviews for event)
+// export async function getReviews(id) {
+//     // 🔥 REAL API CALL: GET /api/events/{id}/reviews
+//     const data = await api(`/events/${id}/reviews`);
 //     return data; // array of Review
 // }
 
-// // POST /api/events/:eventId/reviews (Submit Review)
-// export async function createReview(eventId, review) {
-//     // 🔥 REAL API CALL: POST /api/events/{eventId}/reviews
-//     const data = await api(`/events/${eventId}/reviews`, { method: 'POST', body: review });
+// // POST /api/events/:id/reviews (Submit Review)
+// export async function createReview(id, review) {
+//     // 🔥 REAL API CALL: POST /api/events/{id}/reviews
+//     const data = await api(`/events/${id}/reviews`, { method: 'POST', body: review });
 //     return data;
 // }
 

@@ -15,7 +15,7 @@ export const mapEvent = (apiData) => {
     id: apiData.id || apiData._id, // <--- THIS IS THE PRIMARY KEY FOR ROUTING
     
     // Legacy/Numeric ID (Optional, if needed for filtering/display)
-    eventId: apiData.eventId, // The numeric ID (4, 5, 6...)
+    id: apiData.id, // The numeric ID (4, 5, 6...)
     
     title: apiData.title,
     description: apiData.description,

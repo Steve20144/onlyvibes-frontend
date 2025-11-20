@@ -6,7 +6,7 @@ import EventList from "../components/EventList";
 // We still need the full list to get the initial data
 const DEMO_EVENTS = [
   {
-    eventId: 1,
+    id: 1,
     title: "Event Name",
     venueName: "Big Club Downtown",
     distanceKm: 0.1,
@@ -15,7 +15,7 @@ const DEMO_EVENTS = [
     userHasLiked: false, 
   },
   {
-    eventId: 2,
+    id: 2,
     title: "Event Name",
     venueName: "Chandelier Bar",
     distanceKm: 0.4,
@@ -25,7 +25,7 @@ const DEMO_EVENTS = [
   },
   // ... (all your other events) ...
   {
-    eventId: 7,
+    id: 7,
     title: "Rooftop Party",
     venueName: "Sky Garden",
     distanceKm: 1.0,
@@ -73,15 +73,15 @@ const LikedEventsPage = () => {
     // It doesn't update the "master" DEMO_EVENTS list.
     
     // Update the master liked list
-    const newLikedList = likedEvents.filter(e => e.eventId !== event.id);
+    const newLikedList = likedEvents.filter(e => e.id !== event.id);
     setLikedEvents(newLikedList);
     
     // Update the *displayed* list
-    setDisplayedEvents(prev => prev.filter(e => e.eventId !== event.id));
+    setDisplayedEvents(prev => prev.filter(e => e.id !== event.id));
   };
   
-  const handleEventClick = (eventId) => {
-    navigate(`/events/${eventId}`);
+  const handleEventClick = (id) => {
+    navigate(`/events/${id}`);
   };
 
   return (

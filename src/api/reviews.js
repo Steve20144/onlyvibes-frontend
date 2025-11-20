@@ -12,8 +12,8 @@ import {
 } from './mockData';
 
 
-export const getEventDetailsWithReview = async (eventId) => {
-    const idString = eventId.toString();
+export const getEventDetailsWithReview = async (id) => {
+    const idString = id.toString();
 
     // 1. Λογική για το κεντρικό Event (404)
     if (idString === MOCK_EVENT_ID_EDITABLE_1.toString()) {
@@ -23,7 +23,7 @@ export const getEventDetailsWithReview = async (eventId) => {
     
     // 2. ΝΕΑ ΛΟΓΙΚΗ: Αναζήτηση άλλων Mock Events (π.χ. 101, 201)
     // Χρησιμοποιούμε parseInt() για να είμαστε σίγουροι ότι ταιριάζει με τον αριθμό του array
-    const event = MOCK_EVENTS.find(e => e.eventId === parseInt(idString)); 
+    const event = MOCK_EVENTS.find(e => e.id === parseInt(idString)); 
     
     if (event) {
         // Εάν βρεθεί, επιστρέφουμε βασικά δεδομένα (χωρίς review)
@@ -41,11 +41,11 @@ export const getEventDetailsWithReview = async (eventId) => {
 };
 
 
-// Endpoint 4: DELETE /events/{eventId}/reviews/{reviewId} (Ενημερωμένη λογική)
-export const deleteReview = async (eventId, reviewId) => {
+// Endpoint 4: DELETE /events/{id}/reviews/{reviewId} (Ενημερωμένη λογική)
+export const deleteReview = async (id, reviewId) => {
     // --- MOCK LOGIC ---
-    if (eventId.toString() === MOCK_EVENT_ID_EDITABLE_1.toString() && reviewId === MOCK_REVIEW_ID) {
-        console.log(`MOCK API: Review ${reviewId} deleted successfully for event ${eventId}.`);
+    if (id.toString() === MOCK_EVENT_ID_EDITABLE_1.toString() && reviewId === MOCK_REVIEW_ID) {
+        console.log(`MOCK API: Review ${reviewId} deleted successfully for event ${id}.`);
         return MOCK_EVENT_DETAILS_WITHOUT_REVIEW; 
     }
     
@@ -53,8 +53,8 @@ export const deleteReview = async (eventId, reviewId) => {
 };
 
 // Helper for demonstration (Update Review)
-export const updateReview = async (eventId, reviewId, reviewData) => {
-    console.log(`MOCK API: Review ${reviewId} updated/created for event ${eventId}.`);
+export const updateReview = async (id, reviewId, reviewData) => {
+    console.log(`MOCK API: Review ${reviewId} updated/created for event ${id}.`);
 
     return MOCK_EVENT_DETAILS_WITH_REVIEW; 
 };

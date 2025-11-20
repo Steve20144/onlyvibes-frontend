@@ -9,7 +9,7 @@ import { confirm, alert } from '../components/PopupDialog';
 
 // --- FALLBACK DATA (Preserved) ---
 const FALLBACK_EVENT = {
-  eventId: 1,
+  id: 1,
   title: "Big Club Downtown",
   location: "Downtown Ave, New York",
   dateTime: "2025-11-16T22:30:00",
@@ -81,7 +81,7 @@ export const EventDetailsPage = () => {
 
     try {
         // API Call: DELETE /reviews/{reviewId}
-        await deleteReview(eventData.userReview.reviewId); // eventId is not strictly needed here if service is well-designed
+        await deleteReview(eventData.userReview.reviewId); // id is not strictly needed here if service is well-designed
         
         setEventData(prev => ({ ...prev, userReview: null }));
         setNewReviewText('');
@@ -112,8 +112,8 @@ export const EventDetailsPage = () => {
             // UPDATE: /reviews/{reviewId}
             apiCall = updateReview(eventData.userReview.reviewId, reviewData);
         } else {
-            // SUBMISSION: /events/{eventId}/reviews
-            // apiCall = submitReview(eventId, reviewData);
+            // SUBMISSION: /events/{id}/reviews
+            // apiCall = submitReview(id, reviewData);
         }
 
         const updatedData = await apiCall;

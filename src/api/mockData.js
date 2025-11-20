@@ -25,7 +25,7 @@ export const MOCK_ACCOUNT = {
 // --- 3. Event Entities (3+ Editable Events Added) ---
 export const MOCK_EVENTS = [
   {
-    eventId: 101,
+    id: 101,
     creatorId: 1, 
     title: "Sunset Session",
     location: "Beach Bar A",
@@ -36,7 +36,7 @@ export const MOCK_EVENTS = [
     imageUrl: "https://picsum.photos/400/200?random=1"
   },
   {
-    eventId: 102,
+    id: 102,
     creatorId: 2, 
     title: "Jazz Night",
     location: "Chandeliers Venue",
@@ -48,7 +48,7 @@ export const MOCK_EVENTS = [
   },
   {
     // Editable Event 1 (The main test event)
-    eventId: MOCK_EVENT_ID_EDITABLE_1, 
+    id: MOCK_EVENT_ID_EDITABLE_1, 
     creatorId: 3, // Έχουμε ορίσει αυτό το ID ως "Editable" στη λογική μας
     title: "Cool Party Title #1",
     location: "Casper",
@@ -60,7 +60,7 @@ export const MOCK_EVENTS = [
   },
   {
     // Editable Event 2 (Upcoming Dance Event)
-    eventId: MOCK_EVENT_ID_EDITABLE_2, 
+    id: MOCK_EVENT_ID_EDITABLE_2, 
     creatorId: 3, 
     title: "Tech House Rave",
     location: "Warehouse Z",
@@ -72,7 +72,7 @@ export const MOCK_EVENTS = [
   },
   {
     // Editable Event 3 (Cancelled Status Mock)
-    eventId: MOCK_EVENT_ID_EDITABLE_3, 
+    id: MOCK_EVENT_ID_EDITABLE_3, 
     creatorId: 3, 
     title: "Acoustic Sunset",
     location: "The Rooftop",
@@ -88,7 +88,7 @@ export const MOCK_EVENTS = [
 // --- 4. Review Entity ---
 export const MOCK_REVIEW = {
   reviewId: MOCK_REVIEW_ID,
-  eventId: MOCK_EVENT_ID_EDITABLE_1.toString(),
+  id: MOCK_EVENT_ID_EDITABLE_1.toString(),
   userId: MOCK_USER_ID,
   rating: 4,
   comment: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc purus nulla, malesuada a porta ac.",
@@ -96,7 +96,7 @@ export const MOCK_REVIEW = {
 };
 
 // --- 5. Event Details States (Added necessary fields for EditPage) ---
-const baseEvent = MOCK_EVENTS.find(e => e.eventId === MOCK_EVENT_ID_EDITABLE_1);
+const baseEvent = MOCK_EVENTS.find(e => e.id === MOCK_EVENT_ID_EDITABLE_1);
 
 export const MOCK_EVENT_DETAILS_WITH_REVIEW = {
     ...baseEvent,
