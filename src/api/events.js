@@ -176,6 +176,28 @@ export async function getEvents(filters = {}) {
 
 export const getEventById = fetchEventDetails;
 
+export const deleteEvent = async (id) => {
+    // 1. Log the action (Optional but good for debugging)
+    const method = 'DELETE';
+    const endpoint = `/events/${id}`;
+    console.log(`📡 API CALL: ${method} ${endpoint}`);
+
+    try {
+        // 2. Execute the DELETE request.
+        // Axios requires the method to be specified for non-GET requests.
+        // We expect a 204 No Content response, or a 200 with a success message.
+        await api(endpoint, { method });
+        
+        console.log(`✅ API SUCCESS [${method} ${endpoint}]: Event deleted.`);
+        // Note: We don't need to return anything, as the component will navigate away.
+
+    } catch (error) {
+        // Log the failure and re-throw the error
+        console.error(`❌ API FAILURE [${method} ${endpoint}]:`, error);
+        throw error;
+    }
+};
+
 export const createEvent = async (payload) => {
     const creatorId = '67a12345bc910f0012e99abc';
 

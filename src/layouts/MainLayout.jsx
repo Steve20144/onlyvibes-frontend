@@ -72,20 +72,20 @@ export default function MainLayout() {
         flexDirection: 'column',
         gap: '5px'
       }}>
-        <button 
+        {/* <button 
           onClick={() => setIsDebug(!isDebug)}
           style={debugButtonStyle(isDebug ? 'rgba(255, 50, 50, 0.8)' : '#333')}
         >
           Debug: {isDebug ? 'ON' : 'OFF'}
-        </button>
+        </button> */}
         
         {/* UPDATED BUTTON */}
-        <button
+        {/* <button
           onClick={handleTestClick} 
           style={debugButtonStyle('#333')}
         >
           Test Modal
-        </button>
+        </button> */}
       </div>
 
       {/* ... (Scrollable content / Outlet) ... */}
