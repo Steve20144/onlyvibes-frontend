@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getEventDetailsWithReview, deleteReview, updateReview } from '../api/reviewService';
+// --- NEW ALIGNED IMPORTS ---
+import { getEventById } from '../api/events'; 
+import { deleteReview, updateReview, submitReview } from '../api/reviews';
+// ---------------------------
 import { ArrowLeft, Star, MapPin, Calendar, Clock, Trash2, Edit2 } from 'lucide-react';
-import { confirm, alert } from '../components/PopupDialog'; // <--- NEW IMPORT
+import { confirm, alert } from '../components/PopupDialog';
 
-// --- FALLBACK DATA (Prevents "Event Not Found" if API fails) ---
+// --- FALLBACK DATA (Preserved) ---
 const FALLBACK_EVENT = {
   eventId: 1,
   title: "Big Club Downtown",
@@ -23,9 +26,6 @@ export const EventDetailsPage = () => {
   
   const [eventData, setEventData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  
-  // REMOVED: const [showDeleteModal, setShowDeleteModal] = useState(false);
-  
   const [newReviewText, setNewReviewText] = useState('');
   const [newRating, setNewRating] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
@@ -33,7 +33,9 @@ export const EventDetailsPage = () => {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const data = await getEventDetailsWithReview(eventId);
+        // Fetch event data (which includes userReview if logged in)
+        console.log(eventId)
+        const data = await getEventById(eventId);
         
         if (data) {
           setEventData(data);
@@ -42,7 +44,8 @@ export const EventDetailsPage = () => {
               setNewRating(data.userReview.rating || 0);
           }
         } else {
-          throw new Error("No API data returned");
+          // If API returns null/empty success object
+          throw new Error("No valid event data returned from API.");
         }
       } catch (error) {
         console.warn("API fetch failed, using fallback data:", error);
@@ -58,37 +61,33 @@ export const EventDetailsPage = () => {
     fetchEvent();
   }, [eventId]);
 
-  // --- REFACTORED DELETE LOGIC ---
+  // --- DELETE LOGIC (Uses deleteReview from reviewService) ---
   const handleDeleteReview = async () => {
-    // 1. Trigger Confirmation Popup
     const isConfirmed = await confirm(
       "You are about to delete this review.<br/>This action cannot be undone.<br/>Are you sure?",
       "Delete Review?"
     );
 
-    // 2. If User clicked "No", stop here.
     if (!isConfirmed) return;
 
     try {
-        await deleteReview(eventId, eventData.userReview.reviewId);
+        // API Call: DELETE /reviews/{reviewId}
+        await deleteReview(eventData.userReview.reviewId); // eventId is not strictly needed here if service is well-designed
         
         setEventData(prev => ({ ...prev, userReview: null }));
         setNewReviewText('');
         setNewRating(0);
         
-        // Optional: Show Success Popup
         await alert("Review deleted successfully.", "Deleted");
 
     } catch (error) {
         console.error("Error deleting review:", error);
-        // Handle fallback cleanup even on error if needed
-        setEventData(prev => ({ ...prev, userReview: null }));
-        setNewReviewText('');
-        setNewRating(0);
+        // Show failure alert
+        await alert("Failed to delete review. Try again.", "Error");
     }
   };
 
-  // --- REFACTORED SUBMIT LOGIC ---
+  // --- SUBMIT/UPDATE LOGIC (Uses submitReview and updateReview from reviewService) ---
   const handleReviewSubmission = async () => {
     if (newRating === 0) { 
       await alert("Please provide a star rating.", "Rating Required"); 
@@ -96,19 +95,33 @@ export const EventDetailsPage = () => {
     }
     
     const reviewData = { rating: newRating, comment: newReviewText };
+    let apiCall;
+
     try {
-        const updatedData = await updateReview(eventId, eventData.userReview?.reviewId, reviewData);
-        setEventData(updatedData || { ...eventData, userReview: { ...reviewData, reviewId: 999 } });
+        // Determine if this is an UPDATE (PUT) or a new SUBMISSION (POST)
+        if (eventData.userReview?.reviewId) {
+            // UPDATE: /reviews/{reviewId}
+            apiCall = updateReview(eventData.userReview.reviewId, reviewData);
+        } else {
+            // SUBMISSION: /events/{eventId}/reviews
+            // apiCall = submitReview(eventId, reviewData);
+        }
+
+        const updatedData = await apiCall;
+        
+        // Update local state with the new/updated review data
+        setEventData(updatedData || { 
+            ...eventData, 
+            userReview: { ...reviewData, reviewId: eventData.userReview?.reviewId || Date.now() } 
+        });
+        
         setIsEditing(false);
         
         await alert(eventData.userReview ? 'Review updated!' : 'Review submitted!', "Success");
+
     } catch (error) {
         console.error("Submission failed:", error);
-        setEventData(prev => ({ ...prev, userReview: { ...reviewData, reviewId: Date.now() } }));
-        setIsEditing(false);
-        
-        // Optional: Notify user it was saved locally/offline
-        await alert("Review saved locally (Demo Mode)", "Offline");
+        await alert("Submission failed. Please check the network.", "API Error");
     }
   };
 
@@ -120,7 +133,7 @@ export const EventDetailsPage = () => {
   return (
     <div style={{ width: '100%', minHeight: '100%', background: '#000', paddingBottom: '100px' }}>
       
-      {/* --- HERO IMAGE HEADER --- */}
+      {/* --- HERO IMAGE HEADER (JSX Preserved) --- */}
       <div style={{ height: '350px', width: '100%', position: 'relative', backgroundImage: `url(${eventData.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), transparent)' }} />
         <button onClick={() => navigate(-1)} style={{ position: 'absolute', top: '20px', left: '20px', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(10px)', cursor: 'pointer', color: 'white' }}>
@@ -128,7 +141,7 @@ export const EventDetailsPage = () => {
         </button>
       </div>
 
-      {/* --- CONTENT SHEET (Slides Up) --- */}
+      {/* --- CONTENT SHEET (JSX Preserved) --- */}
       <div style={{ marginTop: '-50px', borderTopLeftRadius: '40px', borderTopRightRadius: '40px', background: '#050016', position: 'relative', padding: '30px 25px', color: 'white', boxShadow: '0 -10px 40px rgba(0,0,0,0.5)', minHeight: '500px' }}>
         
         {/* Title & Rating */}
@@ -152,7 +165,7 @@ export const EventDetailsPage = () => {
              {eventData.description || "No description available."}
         </p>
 
-        {/* --- REVIEW SECTION --- */}
+        {/* --- REVIEW SECTION (JSX Preserved) --- */}
         <div style={{ background: '#1a1a2e', borderRadius: '20px', padding: '20px', border: '1px solid #333' }}>
             
             {/* Header */}
@@ -161,8 +174,6 @@ export const EventDetailsPage = () => {
                 {hasSubmittedReview && !isEditing && (
                    <div style={{ display: 'flex', gap: '10px' }}>
                       <button onClick={() => setIsEditing(true)} style={{background:'none', border:'none', color:'#ccc', cursor:'pointer'}}><Edit2 size={18}/></button>
-                      
-                      {/* REFACTORED DELETE BUTTON */}
                       <button onClick={handleDeleteReview} style={{background:'none', border:'none', color:'#ff6b6b', cursor:'pointer'}}>
                         <Trash2 size={18}/>
                       </button>
@@ -230,13 +241,10 @@ export const EventDetailsPage = () => {
         </div>
 
       </div>
-
-      {/* REMOVED: <ConfirmModal ... /> - No longer needed in JSX */}
-
     </div>
   );
 };
 
-// Helper Styles
+// Helper Styles (Preserved)
 const pillStyle = { display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.1)', padding: '8px 12px', borderRadius: '12px', fontSize: '13px', color: '#ddd' };
 const btnStyle = { flex: 1, padding: '12px', borderRadius: '12px', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' };

@@ -1,7 +1,7 @@
 // src/api/events.js - ΕΝΟΠΟΙΗΜΕΝΟ SERVICE
-import api from './client'; // Assuming 'api' is now imported as 'client' or aliased.
-// We no longer need MOCK_EVENT_ID_EDITABLE_1, MOCK_EVENTS, MOCK_EVENT_DETAILS_WITH_REVIEW
-// import { ... } from './mockData'; 
+import api from './client'; 
+import {mapEvent} from "./mappers";
+
 
 // =========================================================
 // 1. EVENT DETAILS (Used by EventDetailsPage/EditEventPage)
@@ -30,23 +30,9 @@ export const updateEventDetails = async (eventId, updatedEventData) => {
 // =========================================================
 
 // GET /api/events with optional filters (Browse Events)
-const mapEvent = (apiData) => {
-  // Check what data the mapper receives for a single item
-  console.log("⚙️  MAPPER: Processing item:", apiData._id, apiData.title); 
 
-  if (!apiData) return null;
-  
-  const mappedItem = {
-    eventId: apiData.id || apiData._id, 
-    title: apiData.title,
-    // ... other properties
-    venueName: apiData.venueName || "Unknown Venue"
-  };
-  
-  return mappedItem;
-};
 
-// --- 2. THE FETCH FUNCTION ---
+// --- 2. THE GET FUNCTION ---
 export async function getEvents(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();
     

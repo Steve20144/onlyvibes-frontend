@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // 1. Import useNavigate
-import { createEvent } from "../api/events";
-// 2. Import ChevronLeft for the back button
+import { useNavigate } from "react-router-dom";
+import { createEvent } from "../api/events"; // Using eventService based on previous steps
+import { alert } from "../components/PopupDialog"; // <--- NEW IMPORT for Popups
 import { UploadCloud, MapPin, Calendar, List, ChevronRight, ChevronLeft } from 'lucide-react';
 
 export const CreateEventPage = () => {
-  const navigate = useNavigate(); // 3. Initialize useNavigate
+  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  // REMOVED: [error, setError] and [success, setSuccess]
 
   // State for the form fields
   const [title, setTitle] = useState("");
@@ -16,34 +15,60 @@ export const CreateEventPage = () => {
   const [location, setLocation] = useState(null);
   const [dateTime, setDateTime] = useState(null);
   const [category, setCategory] = useState(null); 
-  const [imageUrl, setImageUrl] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null); // NOTE: Mocked
 
-  // 4. Create a function to go back
   const handleGoBack = () => {
-    navigate(-1); // This means "go back one page"
+    navigate(-1);
   };
 
   const handleSubmit = async () => {
+    // 1. Validation (Using the alert popup)
     if (!title || !description || !location || !dateTime || !category) {
-      setError("Please fill out all fields.");
+      await alert("Please fill out all required fields.", "Missing Fields");
       return;
     }
     
     try {
       setSubmitting(true);
-      setError("");
-      setSuccess("");
+      
+      // 2. CONSTRUCTING THE PAYLOAD for the API
+      const payload = {
+        eventId: Math.floor(Math.random() * 10000) + 1000,
+        // NOTE: The keys here (e.g., 'title', 'location') MUST match what the backend expects.
+        // If your backend uses snake_case, you must map it here or in the createEvent service.
+        title: title, 
+        description: description, 
+        category: category, 
+        
+        // CRITICAL: Ensure dateTime format matches backend's expected ISO string
+        dateTime: new Date(dateTime).toISOString(), 
+        
+        location: location,
+        imageUrl: imageUrl || "https://picsum.photos/800/400?random=" + Date.now(),
+        
+        // Add required foreign keys (mocked for now, usually handled by authentication):
+        creatorId: "67a12345bc910f0012e99abc" ,
+        latitude: 0,
+        longitude: 0
+      };
 
-      await createEvent({
-        title, description, category, dateTime, location,
-        imageUrl: imageUrl || undefined
-      });
+      console.log("FINAL PAYLOAD BEING SENT:", JSON.stringify(payload));
+      
+      // 3. API CALL
+      await createEvent(payload);
 
-      setSuccess("Your event has been created! Redirecting...");
-      // Redirect home after success
-      setTimeout(() => navigate('/'), 2000); 
+      // 4. Success and Redirect
+      await alert("Your event has been created! 🎉", "Success");
+      navigate('/'); 
+
     } catch (e) {
-      setError("Failed to create event. Please try again.");
+      console.error("Failed to create event:", e);
+      let errorMsg = "Failed to create event. Please try again.";
+      if (e.message && e.message.includes("400")) {
+          // If the API provided a specific error message
+          errorMsg = "Data validation failed. Check your date format or required fields.";
+      }
+      await alert(errorMsg, "API Error");
     } finally {
       setSubmitting(false);
     }
@@ -61,7 +86,6 @@ export const CreateEventPage = () => {
   return (
     <div style={styles.pageContainer}>
       
-      {/* 5. ADD THE BACK BUTTON HERE */}
       <button style={styles.backButton} onClick={handleGoBack}>
         <ChevronLeft size={24} color="white" />
       </button>
@@ -71,7 +95,10 @@ export const CreateEventPage = () => {
         <div style={styles.uploadIconCircle}>
           <UploadCloud size={40} color="#6C63FF" />
         </div>
-        <button style={styles.uploadButton}>
+        <button 
+            style={styles.uploadButton}
+            onClick={() => setImageUrl('Mock Image Set')} // Mocking success
+        >
           Upload Photos
         </button>
       </div>
@@ -108,36 +135,24 @@ export const CreateEventPage = () => {
             icon={<MapPin size={20} />}
             text="Select Location"
             value={location}
-            onClick={() => setLocation("New York, NY")} // Mock
+            onClick={() => setLocation("New York, NY")} // Mock selection
           />
           <SelectButton
             icon={<Calendar size={20} />}
             text="Select Time"
             value={dateTime}
-            onClick={() => setDateTime("Nov 20, 2025 @ 10:00 PM")} // Mock
+            onClick={() => setDateTime("Nov 20, 2025 @ 10:00 PM")} // Mock selection
           />
           <SelectButton
             icon={<List size={20} />}
             text="Select Categories"
             value={category}
-            onClick={() => setCategory("Music")} // Mock
+            onClick={() => setCategory("Music")} // Mock selection
           />
         </div>
       </div>
 
-      {/* 4. Error/Success Messages */}
-      <div style={styles.messageContainer}>
-        {error && (
-          <p style={{...styles.message, ...styles.errorMsg}}>
-            {error}
-          </p>
-        )}
-        {success && (
-          <p style={{...styles.message, ...styles.successMsg}}>
-            {success}
-          </p>
-        )}
-      </div>
+      {/* REMOVED: Error/Success Messages div */}
 
       {/* 5. Submit Button */}
       <button 
@@ -148,7 +163,7 @@ export const CreateEventPage = () => {
         {submitting ? "Creating..." : "Create Event"}
       </button>
 
-      {/* 6. ADD THE CANCEL BUTTON HERE */}
+      {/* 6. Cancel Button */}
       <button 
         style={styles.cancelButton} 
         onClick={handleGoBack}
@@ -159,7 +174,7 @@ export const CreateEventPage = () => {
   );
 };
 
-// --- STYLES ---
+// --- STYLES (Preserved) ---
 const styles = {
   pageContainer: {
     width: '100%',
@@ -168,9 +183,8 @@ const styles = {
     color: 'white',
     padding: '20px 25px 100px 25px',
     boxSizing: 'border-box',
-    position: 'relative', // Needed for the back button
+    position: 'relative',
   },
-  // Style for the new Back Button
   backButton: {
     position: 'absolute',
     top: '20px',
@@ -279,25 +293,6 @@ const styles = {
   selectChevron: {
     color: '#a8a8a8',
   },
-  messageContainer: {
-    marginTop: '20px',
-  },
-  message: {
-    borderRadius: '8px',
-    padding: '10px',
-    fontSize: '14px',
-    textAlign: 'center',
-  },
-  errorMsg: {
-    background: 'rgba(255, 50, 50, 0.1)',
-    border: '1px solid #ff3232',
-    color: '#ff6b6b',
-  },
-  successMsg: {
-    background: 'rgba(0, 210, 255, 0.1)',
-    border: '1px solid #00d2ff',
-    color: '#00d2ff',
-  },
   submitButton: {
     width: '100%',
     padding: '15px',
@@ -310,7 +305,6 @@ const styles = {
     cursor: 'pointer',
     marginTop: '30px',
   },
-  // Style for the new Cancel Button
   cancelButton: {
     width: '100%',
     padding: '10px',
