@@ -113,7 +113,7 @@ const ReviewedEventsPage = () => {
   const handleLike = (event) => {
     // Update the master list
     setReviewedEvents(prev => prev.map(e => {
-      if (e.eventId === event.eventId) {
+      if (e.eventId === event.id) {
         const newLikedState = !e.userHasLiked;
         const newLikesCount = newLikedState ? (e.likesCount || 0) + 1 : (e.likesCount || 0) - 1;
         return { ...e, userHasLiked: newLikedState, likesCount: newLikesCount < 0 ? 0 : newLikesCount };
@@ -123,7 +123,7 @@ const ReviewedEventsPage = () => {
     
     // Update the displayed list
     setDisplayedEvents(prev => prev.map(e => {
-      if (e.eventId === event.eventId) {
+      if (e.eventId === event.id) {
         const newLikedState = !e.userHasLiked;
         const newLikesCount = newLikedState ? (e.likesCount || 0) + 1 : (e.likesCount || 0) - 1;
         return { ...e, userHasLiked: newLikedState, likesCount: newLikesCount < 0 ? 0 : newLikesCount };

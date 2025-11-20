@@ -49,7 +49,7 @@ export const OrganizedEventsPage = () => {
                 organizedEvents.map(event => (
                     // *** ΠΕΡΝΑΜΕ ΤΟΝ HANDLER ΣΤΟ CARD ***
                     <OrganizedEventCard 
-                        key={event.eventId} 
+                        key={event.id} 
                         event={event} 
                         onCardClick={handleCardClick} // <--- ΚΡΙΣΙΜΟ
                     />

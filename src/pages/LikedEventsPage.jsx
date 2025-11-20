@@ -73,11 +73,11 @@ const LikedEventsPage = () => {
     // It doesn't update the "master" DEMO_EVENTS list.
     
     // Update the master liked list
-    const newLikedList = likedEvents.filter(e => e.eventId !== event.eventId);
+    const newLikedList = likedEvents.filter(e => e.eventId !== event.id);
     setLikedEvents(newLikedList);
     
     // Update the *displayed* list
-    setDisplayedEvents(prev => prev.filter(e => e.eventId !== event.eventId));
+    setDisplayedEvents(prev => prev.filter(e => e.eventId !== event.id));
   };
   
   const handleEventClick = (eventId) => {
