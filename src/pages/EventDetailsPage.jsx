@@ -21,7 +21,8 @@ const FALLBACK_EVENT = {
 };
 
 export const EventDetailsPage = () => {
-  const { eventId } = useParams();
+  const { id } = useParams();
+
   const navigate = useNavigate();
   
   const [eventData, setEventData] = useState(null);
@@ -31,35 +32,43 @@ export const EventDetailsPage = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        // Fetch event data (which includes userReview if logged in)
-        console.log(eventId)
-        const data = await getEventById(eventId);
-        
-        if (data) {
-          setEventData(data);
-          if(data.userReview) {
-              setNewReviewText(data.userReview.comment || '');
-              setNewRating(data.userReview.rating || 0);
-          }
-        } else {
-          // If API returns null/empty success object
-          throw new Error("No valid event data returned from API.");
+  const fetchEvent = async () => {
+    try {
+      console.log("EventDetailsPage param id =", id);
+      const response = await getEventById(id); // axios response
+      const serverPayload = response.data;     // unwrap
+      const event = serverPayload?.data;       // your backend uses { success, data, ... }
+
+      if (event) {
+        setEventData(event);
+        if (event.userReview) {
+          setNewReviewText(event.userReview.comment || '');
+          setNewRating(event.userReview.rating || 0);
         }
-      } catch (error) {
-        console.warn("API fetch failed, using fallback data:", error);
-        setEventData(FALLBACK_EVENT);
-        if (FALLBACK_EVENT.userReview) {
-            setNewReviewText(FALLBACK_EVENT.userReview.comment);
-            setNewRating(FALLBACK_EVENT.userReview.rating);
-        }
-      } finally {
-        setIsLoading(false);
+      } else {
+        throw new Error("No valid event data returned from API.");
       }
-    };
+    } catch (error) {
+      console.warn("API fetch failed, using fallback data:", error);
+      setEventData(FALLBACK_EVENT);
+      if (FALLBACK_EVENT.userReview) {
+        setNewReviewText(FALLBACK_EVENT.userReview.comment);
+        setNewRating(FALLBACK_EVENT.userReview.rating);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (id) {
     fetchEvent();
-  }, [eventId]);
+  } else {
+    console.warn("⚠ No id param in URL, cannot fetch event.");
+    setIsLoading(false);
+  }
+}, [id]);
+
+
 
   // --- DELETE LOGIC (Uses deleteReview from reviewService) ---
   const handleDeleteReview = async () => {
