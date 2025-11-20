@@ -83,7 +83,10 @@ export const updateAccountDetails = async (userId, payload) => {
 
 // POST /api/accounts (Sign Up)
 export const registerUser = async (userData) => {
-  const data = await api('/accounts', { method: 'POST', body: userData });
+  const data = await api.post('/accounts', userData); // 🟢 BEST PRACTICE (Axios sugar)
+  // OR
+  // const data = await api('/accounts', { method: 'POST', data: userData }); // 🟢 Correct config
+  
   return mapUser(data);
 };
 

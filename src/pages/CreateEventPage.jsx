@@ -30,26 +30,43 @@ export const CreateEventPage = () => {
     
     try {
       setSubmitting(true);
+
+      // Get the current date and time
+      const now = new Date();
+
+      // 1. Create a date object for the next month
+      // Note: setMonth(getMonth() + 1) handles year rollovers automatically (e.g., Dec -> Jan)
+      const nextMonthDate = new Date(now);
+      nextMonthDate.setMonth(now.getMonth() + 1);
+
+      // 2. Adjust the time component based on the user's input (if applicable)
+      // If you are setting the time based on user input, you would typically combine 
+      // the new date with the user's selected time (omitted here for simplicity).
+      // Since the user input 'dateTime' likely holds the time component, we can use it 
+      // to set the time of the calculated date.
+
+      // Assuming the user's 'dateTime' state variable already holds the intended time:
+      const userTimeComponent = new Date(dateTime); // Convert user input to Date object
+
+      nextMonthDate.setHours(userTimeComponent.getHours());
+      nextMonthDate.setMinutes(userTimeComponent.getMinutes());
+      nextMonthDate.setSeconds(0);
+      nextMonthDate.setMilliseconds(0);
       
       // 2. CONSTRUCTING THE PAYLOAD for the API
       const payload = {
-        eventId: Math.floor(Math.random() * 10000) + 1000,
-        // NOTE: The keys here (e.g., 'title', 'location') MUST match what the backend expects.
-        // If your backend uses snake_case, you must map it here or in the createEvent service.
-        title: title, 
-        description: description, 
-        category: category, 
-        
-        // CRITICAL: Ensure dateTime format matches backend's expected ISO string
-        dateTime: new Date(dateTime).toISOString(), 
-        
-        location: location,
+        title, 
+        description, 
+        category, 
+        dateTime: nextMonthDate.toISOString(), // Ensure ISO format
+        location,
         imageUrl: imageUrl || "https://picsum.photos/800/400?random=" + Date.now(),
         
-        // Add required foreign keys (mocked for now, usually handled by authentication):
-        creatorId: "67a12345bc910f0012e99abc" ,
-        latitude: 0,
-        longitude: 0
+        // REMOVE creatorId: IT IS NOW HANDLED BY THE SERVICE LAYER
+        
+        // 🟢 NEW: Include optional geospatial fields to prevent server from using null/undefined
+        latitude: null, 
+        longitude: null,
       };
 
       console.log("FINAL PAYLOAD BEING SENT:", JSON.stringify(payload));

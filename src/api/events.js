@@ -37,24 +37,24 @@ export async function getEvents(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();
     
     try {
-        // Assuming your client returns the full response object with the 'data' property
-        const fullResponse = await api(`/events?${queryParams}`);
+        // 1. Axios call returns the response object
+        const response = await api(`/events?${queryParams}`);
         
-        // 🛑 DEBUG PRINT 1: Check the structure of the RAW API response
-        console.log("🛑 API RESPONSE RAW:", fullResponse); 
+        // 2. Axios places the server's full JSON body here:
+        const serverPayload = response.data; 
 
-        // CRITICAL FIX: Access the inner 'data' property
-        const apiPayload = fullResponse.data; 
+        // 🛑 DEBUG PRINT: Check the structure of the RAW server JSON body
+        console.log("🛑 SERVER PAYLOAD RAW:", serverPayload); 
 
-        if (apiPayload && Array.isArray(apiPayload.data)) {
-            // 🛑 DEBUG PRINT 2: Success! Now we have the correct array.
-            console.log(`🛑 API SUCCESS: Found ${apiPayload.data.length} items. Starting map.`); 
+        // 3. Check server's wrapper and access the array
+        if (serverPayload && Array.isArray(serverPayload.data)) {
             
-            // Map the array nested inside apiPayload.data
-            return apiPayload.data.map(mapEvent); 
+            console.log(`🛑 API SUCCESS: Found ${serverPayload.data.length} items. Starting map.`); 
+            
+            // Map the array nested inside serverPayload.data
+            return serverPayload.data.map(mapEvent); 
         }
         
-        // 🛑 DEBUG PRINT 3: If 'data' is missing or wrong type
         console.warn("🛑 API WARNING: Response structure invalid or data is not an array.");
         return []; 
     } catch (error) {
@@ -68,9 +68,36 @@ export const getEventById = fetchEventDetails;
 
 // POST /api/events (Create Event)
 export const createEvent = async (payload) => {
-    // 🔥 REAL API CALL: POST /api/events
-    const data = await api("/events", { method: 'POST', body: payload });
-    return data;
+    // 1. Get the required creatorId from local storage
+    // NOTE: Hardcoded for testing, but should use localStorage in production:
+    const creatorId = '67a12345bc910f0012e99abc'; // localStorage.getItem('currentUserId'); 
+    
+    if (!creatorId) {
+        throw new Error("Authentication required: Creator ID is missing.");
+    }
+    
+    // 2. CONSTRUCT THE FINAL PAYLOAD for the API endpoint
+    // Merge the creatorId with the event data before sending.
+    const finalPayload = {
+        ...payload,
+        creatorId: creatorId,
+        // Remove the temporary eventId if frontend was generating it
+        // eventId: undefined, 
+    };
+
+    try {
+        // 3. API CALL: Use the clean, explicit Axios syntax.
+        // The backend expects the JSON body, which includes the creatorId.
+        const response = await api.post('/events', finalPayload); 
+        
+        // 4. Map the response data before returning to the UI.
+        return mapEvent(response.data);
+        
+    } catch (error) {
+        // Log the error and re-throw it so the UI (CreateEventPage) can catch it.
+        console.error("API Error creating event:", error.message);
+        throw error;
+    }
 };
 
 // POST /api/events/:eventId/like (Like)

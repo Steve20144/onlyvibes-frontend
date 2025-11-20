@@ -40,11 +40,10 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
       // 1. Prepare payload with required schema fields
       const userData = {
         username: username.trim(),
+        name: username.trim(),
         email: email.trim(),
-        // email: null,
         password: password,
-        role: role, // Default to 'user'
-        // FIX: eventId must be unique on the backend, let the backend handle 'id' field generation
+        role: role, 
       };
 
       console.log("👉 REGISTER PAYLOAD SENT:", userData);
@@ -52,13 +51,20 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
       // 2. Call the registration API
       await registerUser(userData);
       
-      // 3. Success notification and switch to Login screen
+      // 3. Success notification
       await alert("Account created successfully! Please sign in.", "Success");
       setIsSigningUp(false);
       
     } catch (err) {
       console.error("Registration error:", err);
-      setError(err.message || 'Registration failed. Try a different username/email.');
+      
+      // 🟢 IMPROVED FIX: Use the standardized alert popup for all failures
+      const userMessage = err.message || 'Registration failed due to a network error.';
+      await alert(userMessage, "Registration Failed"); 
+      
+      // Clear local error state since the message is now a popup
+      setError(''); 
+      
     } finally {
       setLoading(false);
     }
@@ -79,7 +85,15 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
       // Assumes your AuthContext login function handles API call with {username, password}
       await login({username: username.trim(), password}); 
     } catch (err) {
-      setError(err.message || 'Login failed');
+      console.error("Registration error:", err);
+      
+      // 🟢 FIX: Use the alert popup system for API failures
+      const userMessage = err.message || 'Registration failed due to a network or server error.';
+      await alert(userMessage, "Registration Failed"); 
+      
+      // ⚠️ IMPORTANT: Clear the internal error state since the message is now a popup
+      setError(''); 
+      
     } finally {
       setLoading(false);
     }
