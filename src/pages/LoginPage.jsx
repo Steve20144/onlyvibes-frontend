@@ -1,95 +1,186 @@
-// src/pages/LoginPage.jsx
 import React, { useEffect, useState } from 'react';
-// Corrected import path based on your index.js
-import { useAuth } from '../auth/AuthContext'; 
-import '../styles/LoginPage.css'; // <-- Import the CSS
+// 1. Import useNavigate hook
+import { useNavigate } from 'react-router-dom'; 
+import { login as apiLogin, signup as apiSignup } from '../api/auth'; 
+import { alert } from '../components/PopupDialog'; 
+import '../styles/LoginPage.css';
 
 export default function LoginPage({ onSuccessRedirect = '/' }) {
-  const { user, login } = useAuth();
-  const [username, setUsername] = useState('');
+  // 2. Initialize the hook
+  const navigate = useNavigate();
+  
+  const [isSigningUp, setIsSigningUp] = useState(false); 
+  const [username, setUsername] = useState(''); 
+  const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Check if already logged in
   useEffect(() => {
-    if (user) window.location.href = onSuccessRedirect;
-  }, [user, onSuccessRedirect]);
+    const userId = localStorage.getItem('currentUserId');
+    if (userId) {
+        // 3. Use navigate instead of window.location
+        navigate(onSuccessRedirect);
+    }
+  }, [onSuccessRedirect, navigate]);
 
-  const handleSubmit = async (e) => {
+  // ==========================================
+  // REGISTER
+  // ==========================================
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
-    if (!username || !password) {
-      setError('Please enter username and password');
+    
+    if (!username || !email || !password) {
+      await alert("Username, Email, and Password are required.", "Missing Info");
       return;
     }
+    
     setLoading(true);
     try {
-      await login(username.trim(), password);
+      const userData = {
+        username: username.trim(),
+        email: email.trim(),
+        password: password
+      };
+
+      const response = await apiSignup(userData);
+
+      const userId = response.user?.id || response.user?._id || response.id;
+      const token = response.token; 
+
+      if (userId) {
+          localStorage.setItem('currentUserId', userId);
+          if (token) localStorage.setItem('token', token);
+
+          await alert("Account created! Logging you in.", "Success");
+          
+          // 4. Redirect immediately after OK is clicked
+          navigate(onSuccessRedirect);
+      } else {
+          await alert("Account created! Please sign in.", "Success");
+          setIsSigningUp(false);
+      }
+      
     } catch (err) {
-      setError(err.message || 'Login failed');
+      console.error("Registration error:", err);
+      const userMessage = err.response?.data?.message || 'Registration failed.';
+      await alert(userMessage, "Error"); 
     } finally {
       setLoading(false);
     }
   };
 
+  // ==========================================
+  // SIGN IN
+  // ==========================================
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    setError('');
+    
+    if (!email || !password) {
+      await alert("Please enter email and password.", "Input Required");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await apiLogin({ email, password });
+      
+      const userId = response.user?.id || response.user?._id || response.id;
+      const token = response.token;
+      
+      if (!userId) throw new Error("Login successful but no user ID received.");
+
+      localStorage.setItem('currentUserId', userId);
+      if (token) localStorage.setItem('token', token);
+
+      await alert("Welcome back!", "Signed In");
+      
+      // 5. Redirect immediately
+      navigate(onSuccessRedirect);
+
+    } catch (err) {
+      console.error("Login error:", err);
+      const userMessage = err.response?.data?.message || 'Invalid email or password.';
+      await alert(userMessage, "Login Failed"); 
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- Render Fields (Unchanged) ---
+  const renderFormFields = () => (
+    <>
+      {isSigningUp && (
+        <div className="input-group">
+          <label className="input-label">Username</label>
+          <input 
+            value={username} 
+            onChange={(e) => setUsername(e.target.value)} 
+            className="login-input" 
+            placeholder="coolUser123" 
+            autoComplete="username"
+          />
+        </div>
+      )}
+      
+      <div className="input-group">
+        <label className="input-label">Email</label>
+        <input 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          className="login-input" 
+          placeholder="email@example.com" 
+          type="email" 
+          autoComplete="email"
+        />
+      </div>
+      
+      <div className="input-group">
+        <label className="input-label">Password</label>
+        <input 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          type="password" 
+          className="login-input" 
+          placeholder="password" 
+          autoComplete="current-password"
+        />
+      </div>
+    </>
+  );
+
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1 className="login-title">OnlyVibes — Sign in</h1>
+        <h1 className="login-title">
+          OnlyVibes — {isSigningUp ? 'Join' : 'Sign in'}
+        </h1>
         
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={isSigningUp ? handleRegister : handleSignIn} className="login-form">
+          {renderFormFields()}
           
-          {/* Changed to use "input-group" and "login-input" */}
-          <div className="input-group">
-            <label className="input-label">Username</label>
-            <input 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
-              className="login-input" 
-              placeholder="username" 
-              autoComplete="username" 
-            />
-          </div>
-          
-          {/* Changed to use "input-group" and "login-input" */}
-          <div className="input-group">
-            <label className="input-label">Password</label>
-            <input 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              type="password" 
-              className="login-input" 
-              placeholder="password" 
-              autoComplete="current-password" 
-            />
-          </div>
-          
-          {/* Changed to use "error-msg" */}
-          {error && <div className="error-msg">{error}</div>}
-          
-          {/* Changed to use "form-footer", "login-btn", and "demo-link" */}
           <div className="form-footer">
-            <button 
-              type="submit" 
-              disabled={loading} 
-              className="login-btn"
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
+            <button type="submit" disabled={loading} className="login-btn">
+              {loading ? 'Processing...' : (isSigningUp ? 'Sign Up' : 'Sign in')}
             </button>
             <button 
               type="button" 
-              onClick={() => { setUsername('alice'); setPassword('password123'); }} 
+              onClick={() => { 
+                setIsSigningUp(!isSigningUp); 
+                setError('');
+                setUsername('');
+                setEmail('');
+                setPassword('');
+              }} 
               className="demo-link"
             >
-              Demo user
+              {isSigningUp ? 'Already have an account? Sign in' : 'New here? Create account'}
             </button>
           </div>
         </form>
-        
-        {/* Changed to use "disclaimer" */}
-        <div className="disclaimer">
-          This login uses static data for now.
-        </div>
       </div>
     </div>
   );

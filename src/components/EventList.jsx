@@ -16,12 +16,12 @@ const EventList = ({ events, onLike, onEventClick }) => {
     <>
       {events.map((ev) => (
         <EventCard 
-            key={ev.eventId} 
+            key={ev.id} 
             event={ev} 
             onLike={onLike}
             
             // 2. Pass it down to the Card component
-            onClick={() => onEventClick(ev.eventId)} 
+            onClick={() => onEventClick(ev.id)} 
         />
       ))}
     </>

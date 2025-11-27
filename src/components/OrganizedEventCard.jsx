@@ -11,7 +11,7 @@ const OrganizedEventCard = ({ event, onCardClick }) => {
     return (
         <div 
             // Χρησιμοποιούμε τη συνάρτηση που μας δόθηκε από τον γονέα
-            onClick={() => onCardClick(event.eventId)} 
+            onClick={() => onCardClick(event.id)} 
             style={{
                 ...styles.eventCard,
                 opacity: isCancelled ? 0.6 : 1,

@@ -53,12 +53,12 @@ const HomePage = () => {
 
   // --- API CALL: Handle liking/unliking ---
   const handleLike = async (event) => {
-    const { eventId, userHasLiked } = event;
+    const { id, userHasLiked } = event;
     
     // Optimistic UI Update: Update state first for responsiveness
     setEvents((prev) =>
       prev.map((e) => {
-        if (e.eventId === eventId) {
+        if (e.id === id) {
           const newLikedState = !userHasLiked;
           const newLikesCount = newLikedState ? (e.likesCount || 0) + 1 : (e.likesCount || 0) - 1;
           return { ...e, userHasLiked: newLikedState, likesCount: newLikesCount < 0 ? 0 : newLikesCount };
@@ -69,19 +69,19 @@ const HomePage = () => {
 
     try {
       // API Call: Toggle the like status
-      await likeEvent(eventId);
+      await likeEvent(id);
     } catch (error) {
       console.error("Like failed, reverting UI:", error);
       // Revert the UI state if API fails
       setEvents((prev) =>
-        prev.map((e) => (e.eventId === eventId ? { ...e, userHasLiked: userHasLiked, likesCount: e.likesCount } : e))
+        prev.map((e) => (e.id === id ? { ...e, userHasLiked: userHasLiked, likesCount: e.likesCount } : e))
       );
       await alert("Failed to toggle like status.", "Error");
     }
   };
   
-  const handleEventClick = (eventId) => {
-    navigate(`/events/${eventId}`);
+  const handleEventClick = (id) => {
+    navigate(`/events/${id}`);
   };
 
   // --- Render Logic ---

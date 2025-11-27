@@ -6,7 +6,7 @@ import EventList from "../components/EventList";
 // We need to add 'userReview' to the data
 const DEMO_EVENTS = [
   {
-    eventId: 1,
+    id: 1,
     title: "Event Name",
     venueName: "Big Club Downtown",
     distanceKm: 0.1,
@@ -16,7 +16,7 @@ const DEMO_EVENTS = [
     userReview: null, // <--- ADDED
   },
   {
-    eventId: 2,
+    id: 2,
     title: "Event Name",
     venueName: "Chandelier Bar",
     distanceKm: 0.4,
@@ -26,7 +26,7 @@ const DEMO_EVENTS = [
     userReview: { rating: 5, comment: "Amazing!" }, // <--- ADDED
   },
   {
-    eventId: 3,
+    id: 3,
     title: "Event Name",
     venueName: "Underground Hall",
     distanceKm: 0.3,
@@ -36,7 +36,7 @@ const DEMO_EVENTS = [
     userReview: null, // <--- ADDED
   },
   {
-    eventId: 4,
+    id: 4,
     title: "Sunset Vibes",
     venueName: "Beachside Lounge",
     distanceKm: 1.2,
@@ -46,7 +46,7 @@ const DEMO_EVENTS = [
     userReview: null, // <--- ADDED
   },
   {
-    eventId: 5,
+    id: 5,
     title: "Techno Bunker",
     venueName: "The Warehouse",
     distanceKm: 2.5,
@@ -56,7 +56,7 @@ const DEMO_EVENTS = [
     userReview: { rating: 4, comment: "Intense." }, // <--- ADDED
   },
   {
-    eventId: 6,
+    id: 6,
     title: "Jazz Night",
     venueName: "The Speakeasy",
     distanceKm: 0.8,
@@ -66,7 +66,7 @@ const DEMO_EVENTS = [
     userReview: null, // <--- ADDED
   },
   {
-    eventId: 7,
+    id: 7,
     title: "Rooftop Party",
     venueName: "Sky Garden",
     distanceKm: 1.0,
@@ -113,7 +113,7 @@ const ReviewedEventsPage = () => {
   const handleLike = (event) => {
     // Update the master list
     setReviewedEvents(prev => prev.map(e => {
-      if (e.eventId === event.eventId) {
+      if (e.id === event.id) {
         const newLikedState = !e.userHasLiked;
         const newLikesCount = newLikedState ? (e.likesCount || 0) + 1 : (e.likesCount || 0) - 1;
         return { ...e, userHasLiked: newLikedState, likesCount: newLikesCount < 0 ? 0 : newLikesCount };
@@ -123,7 +123,7 @@ const ReviewedEventsPage = () => {
     
     // Update the displayed list
     setDisplayedEvents(prev => prev.map(e => {
-      if (e.eventId === event.eventId) {
+      if (e.id === event.id) {
         const newLikedState = !e.userHasLiked;
         const newLikesCount = newLikedState ? (e.likesCount || 0) + 1 : (e.likesCount || 0) - 1;
         return { ...e, userHasLiked: newLikedState, likesCount: newLikesCount < 0 ? 0 : newLikesCount };
@@ -132,8 +132,8 @@ const ReviewedEventsPage = () => {
     }));
   };
   
-  const handleEventClick = (eventId) => {
-    navigate(`/events/${eventId}`);
+  const handleEventClick = (id) => {
+    navigate(`/events/${id}`);
   };
 
   return (

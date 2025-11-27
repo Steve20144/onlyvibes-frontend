@@ -6,7 +6,7 @@ import { getEvents, updateEventDetails } from '../api/events';
 import { confirm, alert } from '../components/PopupDialog'; // <--- NEW IMPORT
 
 export const EditEventPage = () => {
-  const { eventId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -17,7 +17,7 @@ export const EditEventPage = () => {
   useEffect(() => {
     const loadEvent = async () => {
       try {
-        const data = await getEvents(eventId);
+        const data = await getEvents(id);
         setEvent(data);
         
         // Format the date/time for the HTML input field
@@ -40,7 +40,7 @@ export const EditEventPage = () => {
       }
     };
     loadEvent();
-  }, [eventId, navigate]);
+  }, [id, navigate]);
 
   // Handle input change
   const handleChange = (e) => {
@@ -48,7 +48,7 @@ export const EditEventPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle Save (PUT /events/{eventId})
+  // Handle Save (PUT /events/{id})
   const handleSave = async (e) => {
     e.preventDefault();
     
@@ -70,7 +70,7 @@ export const EditEventPage = () => {
 
     try {
         // Send the complete payload
-        const updatedEvent = await updateEventDetails(eventId, {
+        const updatedEvent = await updateEventDetails(id, {
             ...formData,
             category: event.category, 
             creatorId: event.creatorId,
@@ -79,7 +79,7 @@ export const EditEventPage = () => {
         
         // 3. Success Popup
         await alert(`Event "${updatedEvent.title}" updated successfully!`, "Success");
-        navigate(`/events/${eventId}`); 
+        navigate(`/events/${id}`); 
         
     } catch (error) {
         console.error("Error saving event:", error);
@@ -113,7 +113,7 @@ export const EditEventPage = () => {
         <div style={styles.photoGallery}>
             <div style={styles.photoGrid}>
                 {event.photos && event.photos.slice(0, 6).map((p, i) => (
-                    <img key={i} src={`https://picsum.photos/120/120?random=${eventId}-${i}`} alt={`Event photo ${i+1}`} style={styles.photoItem}/>
+                    <img key={i} src={`https://picsum.photos/120/120?random=${id}-${i}`} alt={`Event photo ${i+1}`} style={styles.photoItem}/>
                 ))}
             </div>
             {/* Edit Photos Button */}

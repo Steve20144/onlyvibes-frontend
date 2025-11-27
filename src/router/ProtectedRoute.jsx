@@ -1,25 +1,25 @@
 // src/router/ProtectedRoute.jsx
-import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
+import { isAuthenticated } from "../api/auth";
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const isLoggedIn = !!localStorage.getItem('currentUserId');
   const location = useLocation();
+  const userIsAuthenticated = isAuthenticated();
 
-  if (loading) {
-    return (
-      <div className="app-shell">
-        <div className="phone-frame">
-          <div className="phone-content center">
-            <p>Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="app-shell">
+  //       <div className="phone-frame">
+  //         <div className="phone-content center">
+  //           <p>Loading...</p>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  if (!isAuthenticated) {
+  if (!userIsAuthenticated) {
     return <Navigate to="/" replace state={{ from: location }} />;
   }
 
