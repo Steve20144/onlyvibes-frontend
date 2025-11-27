@@ -144,6 +144,7 @@
 
 
 // src/api/events.js
+import { getCurrentUserId } from './auth';
 import api from './client'; 
 import { mapEvent } from "./mappers";
 
@@ -199,7 +200,7 @@ export const deleteEvent = async (id) => {
 };
 
 export const createEvent = async (payload) => {
-    const creatorId = '67a12345bc910f0012e99abc';
+    const creatorId = getCurrentUserId();
 
     const finalPayload = {
         ...payload,

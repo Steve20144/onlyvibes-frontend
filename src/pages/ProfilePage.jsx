@@ -1,9 +1,10 @@
-import React from 'react';
-import { useAuth } from '../auth/AuthContext';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentUserId, logout } from '../api/auth';
+import { getAccount } from '../api/accounts'; 
 import { 
   CheckCircle, 
-  User, 
+  User,
   Globe, 
   Heart, 
   MessageSquare, 
@@ -15,22 +16,75 @@ import {
 } from 'lucide-react';
 
 export const ProfilePage = () => {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const userId = getCurrentUserId(); // Get ID immediately
+  
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login'); 
+  // 1. Fetch User Data on Load
+  useEffect(() => {
+    const loadUserData = async () => {
+      // 🟢 IF GUEST: Stop loading immediately, do not fetch
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await getAccount(userId);
+        
+        if (response.data) {
+            setProfile(response.data);
+        } else {
+            setProfile(response);
+        }
+
+      } catch (error) {
+        console.error("Failed to load profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, [userId, navigate]);
+
+  // 2. Fixed Logout Handler
+  const handleLogout = () => {
+    logout(() => navigate('/login')); 
   };
   
-  // This will be handled by your ProtectedRoute, but it's a good safeguard
-  if (!user) return null; 
+  // 🟢 SHOW MOCKUP IF NOT LOGGED IN
+  if (!userId) {
+    return (
+      <div style={styles.pageContainer}>
+        <div style={styles.guestContainer}>
+            <h2 style={styles.guestTitle}>Sign In to view profile</h2>
+            <button 
+                style={styles.guestSignInBtn}
+                onClick={() => navigate('/login')}
+            >
+                Sign In
+            </button>
+        </div>
+      </div>
+    );
+  }
 
-  // --- Mock Data from Mockup ---
+  // Show loading state while fetching (only for logged in users)
+  if (loading) {
+    return <div style={{...styles.pageContainer, display:'flex', justifyContent:'center', alignItems:'center'}}>Loading...</div>;
+  }
+
+  // Safety check if logged in but API failed
+  if (!profile) return null; 
+
+  // --- Mock Data ---
   const mockFollowers = 235;
   const mockFollowing = 12;
 
-  // --- Helper component for the list items ---
+  // --- Helper component ---
   const MenuItem = ({ icon, text, onClick, isLogout = false }) => (
     <button style={styles.menuItem} onClick={onClick}>
       <div style={{...styles.menuIcon, color: isLogout ? '#ff6b6b' : '#a8a8a8'}}>
@@ -43,35 +97,30 @@ export const ProfilePage = () => {
     </button>
   );
 
-  // Function to handle navigation for vertical links
-  const handleActionClick = (path) => {
-    navigate(path);
-  };
-
   return (
     <div style={styles.pageContainer}>
       
-      {/* 1. Header Bar (from mockup) */}
+      {/* Header Bar */}
       <div style={styles.header}>
         <div style={styles.headerLeft}>
-          <h1 style={styles.username}>{user.name}</h1>
-          {user.isVerified && <CheckCircle size={22} color="#00d26a" fill="#000" />}
+          <h1 style={styles.username}>
+            {profile.username || profile.firstName || "User"}
+          </h1>
+          {profile.isVerified && <CheckCircle size={22} color="#00d26a" fill="#000" />}
         </div>
         
-        {/* We can wire these up later */}
         <div style={styles.headerRight}>
-          <button style={styles.editButton}>
+          <button style={styles.editButton} onClick={() => navigate('/profile/edit')}>
             <Edit2 size={16} color="white" />
           </button>
           <CheckCircle size={28} color="#a8a8a8" />
         </div>
       </div>
 
-      {/* 2. Profile Info Block (from mockup) */}
+      {/* Profile Info Block */}
       <div style={styles.profileInfo}>
-        {/* Use user's image if it exists, otherwise the icon */}
-        {user.profilePictureUrl ? (
-          <img src={user.profilePictureUrl} style={styles.profilePicCircle} alt="Profile" />
+        {profile.profilePictureUrl ? (
+          <img src={profile.profilePictureUrl} style={styles.profilePicCircle} alt="Profile" />
         ) : (
           <div style={styles.profilePicCircle}>
             <User size={50} color="#ccc" />
@@ -90,21 +139,20 @@ export const ProfilePage = () => {
         </div>
       </div>
 
-      {/* 3. Bio Section (using user's bio) */}
       <p style={styles.bio}>
-        {user.bio || "No bio available. Click edit to add one!"}
+        {profile.bio || `Hi, I'm ${profile.username || 'a user'} on OnlyVibes!`}
       </p>
 
-      {/* 4. Create Event Button (wired to navigate) */}
+      {/* Create Event Button */}
       <button 
         style={styles.createButton}
-        onClick={() => navigate('/events/create')} // <--- ADDED THIS LINE
+        onClick={() => navigate('/events/create')}
       >
         <Globe size={18} />
         <span>Create an Event!</span>
       </button>
 
-      {/* 5. Menu List (from mockup + Logout) */}
+      {/* Menu List */}
       <div style={styles.menuList}>
         <div style={styles.divider} />
         <MenuItem icon={<Heart size={20} />} text="Liked Events" onClick={() => navigate('/events/liked')} />
@@ -112,7 +160,6 @@ export const ProfilePage = () => {
         <MenuItem icon={<Calendar size={20} />} text="Organized Events" onClick={() => navigate('/events/organized')} />
         <MenuItem icon={<SlidersHorizontal size={20} />} text="Edit Preferences" onClick={() => navigate('/profile/preferences')} />
         
-        {/* Added your Logout functionality to fit the design */}
         <div style={styles.divider} />
         <MenuItem icon={<LogOut size={20} />} text="Logout" onClick={handleLogout} isLogout={true} />
       </div>
@@ -121,16 +168,43 @@ export const ProfilePage = () => {
   );
 };
 
-// --- Styles to match the mockup ---
+// --- Styles ---
 const styles = {
   pageContainer: {
     width: '100%',
-    minHeight: '100%',
+    minHeight: '100%', // Ensures it covers screen height
     backgroundColor: '#050016',
     color: 'white',
     padding: '20px 25px 100px 25px',
     boxSizing: 'border-box'
   },
+  // 🟢 NEW STYLES FOR GUEST VIEW
+  guestContainer: {
+    height: '70vh', // Takes up most of the screen to center content
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '20px'
+  },
+  guestTitle: {
+    fontSize: '22px',
+    fontWeight: '600',
+    color: 'white',
+    margin: 0
+  },
+  guestSignInBtn: {
+    backgroundColor: 'transparent',
+    border: '1px solid #00d4ff', // Cyan border
+    color: '#00d4ff',             // Cyan text
+    padding: '12px 40px',
+    borderRadius: '30px',
+    fontSize: '16px',
+    cursor: 'pointer',
+    fontWeight: '500',
+    marginTop: '10px'
+  },
+  // ... Existing Styles ...
   header: {
     display: 'flex',
     alignItems: 'center',
@@ -147,6 +221,7 @@ const styles = {
     fontWeight: 'bold',
     margin: 0,
     color: 'white',
+    textTransform: 'capitalize'
   },
   headerRight: {
     display: 'flex',
@@ -222,7 +297,7 @@ const styles = {
     flexDirection: 'column',
   },
   divider: {
-    height: '1impx',
+    height: '1px',
     backgroundColor: '#222',
     margin: '10px 0',
   },

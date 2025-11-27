@@ -1,114 +1,89 @@
-// src/api/accounts.js
-import api from './client'; 
-import { mapUser, mapEvent } from './mappers';
+import api from './client';
 
 // =========================================================
-// 1. PROFILE & DETAILS (GET /api/accounts/:userId)
+// 1. CREATE (POST /accounts) - Sign Up
 // =========================================================
 
 /**
- * Fetches user or venue profile details.
- * Used by: ProfilePage
+ * Creates a new user account.
+ * @param {object} accountData - { firstName, lastName, email, password }
+ * @returns {Promise<object>} The created account object.
  */
-export const fetchUserProfile = async (userId) => {
-  try {
-    const data = await api(`/accounts/${userId}`); // Uses 'api'
-    // ...
-    return mapUser(data.data || data); 
-  } catch (error) {
-    console.error(`Error fetching profile for user ${userId}:`, error);
-    throw error;
-  }
+export const createAccount = async (accountData) => {
+    const method = 'POST';
+    const endpoint = '/accounts';
+
+    console.log(`📡 API CALL: ${method} ${endpoint}`, accountData);
+
+    const response = await api(endpoint, {
+        method: method,
+        data: accountData
+    });
+
+    // Returns the created user object (usually includes the new _id)
+    return response.data || response;
 };
 
 // =========================================================
-// 2. ACCOUNT ACTIONS (POST /api/accounts/:userId/...)
+// 2. READ (GET /accounts/:id) - Get Profile
 // =========================================================
 
 /**
- * Submits a verification request for an account (usually for venues).
- * Endpoint: POST /api/accounts/:userId/verification-request
+ * Retrieves a specific account by ID.
+ * @param {string} accountId - The ID of the account to fetch.
+ * @returns {Promise<object>} The account details.
  */
-export const requestVerification = async (userId, documentData) => {
-  // documentData might include files or text, depending on backend implementation
-  return api(`/accounts/${userId}/verification-request`, { 
-    method: 'POST', 
-    body: documentData 
-  });
-};
+export const getAccount = async (accountId) => {
+    const method = 'GET';
+    const endpoint = `/accounts/${accountId}`;
 
-/**
- * Follows another user or venue account.
- * Endpoint: POST /api/accounts/:userId/follow
- */
-export const followUser = async (targetUserId) => {
-  // Assuming the current user ID is handled by the Authorization header/cookie
-  return api(`/accounts/${targetUserId}/follow`, { method: 'POST' });
+    console.log(`📡 API CALL: ${method} ${endpoint}`);
+
+    const response = await api(endpoint);
+
+    return response.data || response;
 };
 
 // =========================================================
-// 3. RECOMMENDATIONS (GET /api/accounts/:userId/recommendations)
+// 3. UPDATE (PUT /accounts/:id) - Edit Profile
 // =========================================================
 
 /**
- * Fetches personalized event recommendations.
- * Endpoint: GET /api/accounts/:userId/recommendations
+ * Updates an existing account.
+ * @param {string} accountId - The ID of the account to update.
+ * @param {object} updates - Fields to update (e.g., { firstName: "NewName" })
+ * @returns {Promise<object>} The updated account object.
  */
-export const fetchRecommendations = async (userId) => {
-  try {
-    const response = await api(`/accounts/${userId}/recommendations`);
-    // Assuming the response is { data: [events] }
-    const eventData = response.data || response;
-    
-    // Map each event item to the clean frontend format
-    return (eventData || []).map(mapEvent); 
-  } catch (error) {
-    console.error(`Error fetching recommendations for user ${userId}:`, error);
-    throw error;
-  }
+export const updateAccount = async (accountId, updates) => {
+    const method = 'PUT';
+    const endpoint = `/accounts/${accountId}`;
+
+    console.log(`📡 API CALL: ${method} ${endpoint}`, updates);
+
+    const response = await api(endpoint, {
+        method: method,
+        data: updates
+    });
+
+    return response.data || response;
 };
 
 // =========================================================
-// 4. MOCK: Update Account Details (PUT /api/accounts/:userId)
+// 4. DELETE (DELETE /accounts/:id) - Delete Account
 // =========================================================
 
 /**
- * Inferred endpoint for updating account details.
+ * Deletes a user account.
+ * @param {string} accountId - The ID of the account to delete.
+ * @returns {Promise<void>}
  */
-export const updateAccountDetails = async (userId, payload) => {
-  // Note: This endpoint was not explicitly listed but is necessary for an 'Edit Profile' screen.
-  return api(`/accounts/${userId}`, { method: 'PUT', body: payload });
-};
+export const deleteAccount = async (accountId) => {
+    const method = 'DELETE';
+    const endpoint = `/accounts/${accountId}`;
 
+    console.log(`📡 API CALL: ${method} ${endpoint}`);
 
-// POST /api/accounts (Sign Up)
-export const registerUser = async (userData) => {
-  const data = await api.post('/accounts', userData); // 🟢 BEST PRACTICE (Axios sugar)
-  // OR
-  // const data = await api('/accounts', { method: 'POST', data: userData }); // 🟢 Correct config
-  
-  return mapUser(data);
-};
-
-// --- CORE LOGIN FUNCTION ---
-export const loginUser = async (credentials) => {
-  // Assuming POST /auth/login is the endpoint. Adjust if your backend uses POST /accounts/login
-  const response = await api('/auth/login', { 
-    method: 'POST', 
-    body: credentials 
-  }); 
-  
-  // CRITICAL: We assume the backend returns { user: {...}, token: "..." }
-  const user = mapUser(response.user || response); 
-  const token = response.token; 
-
-  // Store token and user ID locally for future API calls (e.g., creating events)
-  if (token && user.userId) {
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('currentUserId', user.userId);
-  } else {
-    throw new Error("Authentication failed: Missing token or user ID in response.");
-  }
-
-  return user;
+    await api(endpoint, {
+        method: method
+    });
 };

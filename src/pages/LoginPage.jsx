@@ -1,128 +1,140 @@
-// src/pages/LoginPage.jsx
-
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../auth/AuthContext'; 
-// FIX: Import registerUser from the correct file
-import { registerUser } from '../api/accounts'; 
+// 1. Import useNavigate hook
+import { useNavigate } from 'react-router-dom'; 
+import { login as apiLogin, signup as apiSignup } from '../api/auth'; 
 import { alert } from '../components/PopupDialog'; 
 import '../styles/LoginPage.css';
 
 export default function LoginPage({ onSuccessRedirect = '/' }) {
-  const { user, login } = useAuth();
+  // 2. Initialize the hook
+  const navigate = useNavigate();
   
-  // New state to toggle between views
   const [isSigningUp, setIsSigningUp] = useState(false); 
-
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(''); 
+  const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
-  const [email, setEmail] = useState(''); // New field for registration
-  const [role, setRole] = useState('user'); // New field for registration
-  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Auto-redirect on successful login/registration
+  // Check if already logged in
   useEffect(() => {
-    if (user) window.location.href = onSuccessRedirect;
-  }, [user, onSuccessRedirect]);
+    const userId = localStorage.getItem('currentUserId');
+    if (userId) {
+        // 3. Use navigate instead of window.location
+        navigate(onSuccessRedirect);
+    }
+  }, [onSuccessRedirect, navigate]);
 
+  // ==========================================
+  // REGISTER
+  // ==========================================
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
     
-    if (!username || !password || !email) {
-      setError('Please fill in all required fields.');
+    if (!username || !email || !password) {
+      await alert("Username, Email, and Password are required.", "Missing Info");
       return;
     }
     
     setLoading(true);
     try {
-      // 1. Prepare payload with required schema fields
       const userData = {
         username: username.trim(),
-        name: username.trim(),
         email: email.trim(),
-        password: password,
-        role: role, 
+        password: password
       };
 
-      console.log("👉 REGISTER PAYLOAD SENT:", userData);
+      const response = await apiSignup(userData);
 
-      // 2. Call the registration API
-      await registerUser(userData);
-      
-      // 3. Success notification
-      await alert("Account created successfully! Please sign in.", "Success");
-      setIsSigningUp(false);
+      const userId = response.user?.id || response.user?._id || response.id;
+      const token = response.token; 
+
+      if (userId) {
+          localStorage.setItem('currentUserId', userId);
+          if (token) localStorage.setItem('token', token);
+
+          await alert("Account created! Logging you in.", "Success");
+          
+          // 4. Redirect immediately after OK is clicked
+          navigate(onSuccessRedirect);
+      } else {
+          await alert("Account created! Please sign in.", "Success");
+          setIsSigningUp(false);
+      }
       
     } catch (err) {
       console.error("Registration error:", err);
-      
-      // 🟢 IMPROVED FIX: Use the standardized alert popup for all failures
-      const userMessage = err.message || 'Registration failed due to a network error.';
-      await alert(userMessage, "Registration Failed"); 
-      
-      // Clear local error state since the message is now a popup
-      setError(''); 
-      
+      const userMessage = err.response?.data?.message || 'Registration failed.';
+      await alert(userMessage, "Error"); 
     } finally {
       setLoading(false);
     }
   };
 
+  // ==========================================
+  // SIGN IN
+  // ==========================================
   const handleSignIn = async (e) => {
     e.preventDefault();
     setError('');
     
-    if (!username || !password) {
-      setError('Please enter username and password');
+    if (!email || !password) {
+      await alert("Please enter email and password.", "Input Required");
       return;
     }
-    // Logic remains the same, calling login from AuthContext
-    // ... [existing handleSubmit logic for Sign In] ...
+
     setLoading(true);
     try {
-      // Assumes your AuthContext login function handles API call with {username, password}
-      await login({username: username.trim(), password}); 
+      const response = await apiLogin({ email, password });
+      
+      const userId = response.user?.id || response.user?._id || response.id;
+      const token = response.token;
+      
+      if (!userId) throw new Error("Login successful but no user ID received.");
+
+      localStorage.setItem('currentUserId', userId);
+      if (token) localStorage.setItem('token', token);
+
+      await alert("Welcome back!", "Signed In");
+      
+      // 5. Redirect immediately
+      navigate(onSuccessRedirect);
+
     } catch (err) {
-      console.error("Registration error:", err);
-      
-      // 🟢 FIX: Use the alert popup system for API failures
-      const userMessage = err.message || 'Registration failed due to a network or server error.';
-      await alert(userMessage, "Registration Failed"); 
-      
-      // ⚠️ IMPORTANT: Clear the internal error state since the message is now a popup
-      setError(''); 
-      
+      console.error("Login error:", err);
+      const userMessage = err.response?.data?.message || 'Invalid email or password.';
+      await alert(userMessage, "Login Failed"); 
     } finally {
       setLoading(false);
     }
   };
 
-  // --- Helper to render the common form fields ---
+  // --- Render Fields (Unchanged) ---
   const renderFormFields = () => (
     <>
       {isSigningUp && (
         <div className="input-group">
-          <label className="input-label">Email</label>
+          <label className="input-label">Username</label>
           <input 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
+            value={username} 
+            onChange={(e) => setUsername(e.target.value)} 
             className="login-input" 
-            placeholder="email@example.com" 
-            autoComplete="email" 
+            placeholder="coolUser123" 
+            autoComplete="username"
           />
         </div>
       )}
       
       <div className="input-group">
-        <label className="input-label">Username</label>
+        <label className="input-label">Email</label>
         <input 
-          value={username} 
-          onChange={(e) => setUsername(e.target.value)} 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
           className="login-input" 
-          placeholder="username" 
-          autoComplete="username" 
+          placeholder="email@example.com" 
+          type="email" 
+          autoComplete="email"
         />
       </div>
       
@@ -134,7 +146,7 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
           type="password" 
           className="login-input" 
           placeholder="password" 
-          autoComplete={isSigningUp ? "new-password" : "current-password"} 
+          autoComplete="current-password"
         />
       </div>
     </>
@@ -144,48 +156,31 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
     <div className="login-container">
       <div className="login-card">
         <h1 className="login-title">
-          OnlyVibes — {isSigningUp ? 'Create Account' : 'Sign in'}
+          OnlyVibes — {isSigningUp ? 'Join' : 'Sign in'}
         </h1>
         
-        {/* Use correct handler based on view mode */}
         <form onSubmit={isSigningUp ? handleRegister : handleSignIn} className="login-form">
-          
           {renderFormFields()}
           
-          {error && <div className="error-msg">{error}</div>}
-          
           <div className="form-footer">
-            <button 
-              type="submit" 
-              disabled={loading} 
-              className="login-btn"
-            >
-              {loading 
-                ? (isSigningUp ? 'Creating...' : 'Signing in...') 
-                : (isSigningUp ? 'Sign Up' : 'Sign in')
-              }
+            <button type="submit" disabled={loading} className="login-btn">
+              {loading ? 'Processing...' : (isSigningUp ? 'Sign Up' : 'Sign in')}
             </button>
-            
-            {/* Toggle Button */}
             <button 
               type="button" 
-              onClick={() => {
-                setIsSigningUp(!isSigningUp);
+              onClick={() => { 
+                setIsSigningUp(!isSigningUp); 
                 setError('');
                 setUsername('');
-                setPassword('');
                 setEmail('');
+                setPassword('');
               }} 
               className="demo-link"
             >
-              {isSigningUp ? 'Already have an account? Sign in' : 'New user? Create an account'}
+              {isSigningUp ? 'Already have an account? Sign in' : 'New here? Create account'}
             </button>
           </div>
         </form>
-        
-        <div className="disclaimer">
-          This page uses real API calls for sign in/up.
-        </div>
       </div>
     </div>
   );
