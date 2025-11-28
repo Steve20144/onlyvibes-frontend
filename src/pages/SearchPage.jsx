@@ -1,6 +1,5 @@
-// src/pages/SearchPage.jsx
-import React, { useState } from 'react';
-import { alert } from '../components/PopupDialog'; // <--- NEW IMPORT
+import { useState } from 'react';
+import { alert } from '../components/PopupDialog';
 
 export const SearchPage = () => {
   const [query, setQuery] = useState('');
@@ -15,7 +14,6 @@ export const SearchPage = () => {
     }
 
     // 2. Logic for calling GET /search?q={query}
-    // For now, we show the custom popup instead of the native alert
     await alert(`Searching for: <b>${query}</b>`, "Search Started");
     
     // In a real app, you would probably navigate here:

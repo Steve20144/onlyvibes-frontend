@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, MapPin, Calendar, Clock, Trash2, User } from 'lucide-react';
 
@@ -29,9 +29,6 @@ export const EventDetailsPage = () => {
               fetchEventReviews(id)
           ]);
 
-          // 🟢 CRITICAL FIX: Unwrap the 'data' property from the JSON response
-          // Your JSON is { success: true, data: { creatorId: ... } }
-          // We want eventData to be just { creatorId: ... }
           const cleanEventData = eventRes.data || eventRes;
 
           setEventData(cleanEventData);
@@ -70,15 +67,13 @@ export const EventDetailsPage = () => {
   if (isLoading) return <div style={{color:'white', padding:'40px', textAlign:'center'}}>Loading Vibes...</div>;
   if (!eventData) return <div style={{color:'white', padding:'40px', textAlign:'center'}}>Event Not Found.</div>;
 
-  // 🟢 OWNERSHIP CHECK (Fixed)
   // 1. Get the Creator ID from the cleaned data
   const ownerId = eventData.data.creatorId;
   console.log(eventData)
   // 2. Compare Strings (to handle ObjectId vs String differences)
   const isEventOwner = currentUserId && String(ownerId) === String(currentUserId);
   
-  // Debugging Log (You can remove this later)
-  console.log("MY ID:", currentUserId, "OWNER ID:", ownerId, "MATCH:", isEventOwner);
+//   console.log("MY ID:", currentUserId, "OWNER ID:", ownerId, "MATCH:", isEventOwner);
 
   // Calculate Average Rating
   const avgRating = reviews.length > 0 
@@ -96,7 +91,7 @@ export const EventDetailsPage = () => {
           <ArrowLeft size={24} />
         </button>
 
-        {/* 🟢 DELETE BUTTON: Only renders if isEventOwner is true */}
+        {/* DELETE BUTTON: Only renders if isEventOwner is true */}
         {isEventOwner && (
             <button 
                 onClick={handleDeleteEvent} 
@@ -104,7 +99,7 @@ export const EventDetailsPage = () => {
                     position: 'absolute', 
                     top: '20px', 
                     right: '20px', 
-                    background: 'rgba(255,50,50,0.8)', // Red background
+                    background: 'rgba(255,50,50,0.8)', 
                     border: 'none', 
                     borderRadius: '50%', 
                     width: '40px', 
@@ -183,7 +178,6 @@ export const EventDetailsPage = () => {
 
 // --- SUB-COMPONENT: Single Review Item ---
 const ReviewItem = ({ review }) => {
-    // Robust Name Checking
     const displayName = 
         review.username || 
         review.user?.username || 

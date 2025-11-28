@@ -1,10 +1,9 @@
-// src/api/mockData.js
 // Dummy/Static Data for OnlyVibes Frontend
 
 // --- 1. Constants ---
 export const MOCK_USER_ID = "user123";
 export const MOCK_REVIEW_ID = "review99";
-export const MOCK_EVENT_ID_EDITABLE_1 = 404; // Κεντρικό event για reviews/edit
+export const MOCK_EVENT_ID_EDITABLE_1 = 404; 
 export const MOCK_EVENT_ID_EDITABLE_2 = 201; 
 export const MOCK_EVENT_ID_EDITABLE_3 = 202; 
 
@@ -49,7 +48,7 @@ export const MOCK_EVENTS = [
   {
     // Editable Event 1 (The main test event)
     id: MOCK_EVENT_ID_EDITABLE_1, 
-    creatorId: 3, // Έχουμε ορίσει αυτό το ID ως "Editable" στη λογική μας
+    creatorId: 3, 
     title: "Cool Party Title #1",
     location: "Casper",
     dateTime: "2025-03-29T23:00:00Z",
@@ -80,7 +79,7 @@ export const MOCK_EVENTS = [
     category: "Chill",
     likecounter: 12,
     distance: "1.2 km",
-    isCancelled: true, // Προσθήκη status για οπτική δοκιμή
+    isCancelled: true, 
     imageUrl: "https://picsum.photos/400/200?random=5"
   },
 ];
@@ -104,7 +103,6 @@ export const MOCK_EVENT_DETAILS_WITH_REVIEW = {
     reviewCount: 264, 
     userReview: MOCK_REVIEW, 
     reviews: [MOCK_REVIEW],
-    // *** ΠΡΟΣΘΗΚΗ: Χαρακτηριστικά απαραίτητα για την EditPage ***
     description: "Suspense condimentum eget mi non dapibus. In hac habitasse platea dictumst. Aenean convallis odio massa, pellentesque posuere turpis pulvinar in.",
     photos: ["p1.jpg", "p2.jpg", "p3.jpg", "p4.jpg", "p5.jpg", "p6.jpg"]
 };

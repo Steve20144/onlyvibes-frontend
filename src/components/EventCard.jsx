@@ -33,7 +33,7 @@ const EventCard = ({ event, onLike, onClick }) => {
         alt={event.title}
         style={{
           width: "100%",
-          height: 230, // 1. MADE CARD TALLER (was 200)
+          height: 230, 
           objectFit: "cover",
           display: "block",
         }}
@@ -76,7 +76,6 @@ const EventCard = ({ event, onLike, onClick }) => {
           width: 34,
           height: 34,
           borderRadius: "50%",
-          // 2. REMOVED BACKGROUND
           background: "transparent", 
           color: "white",
           fontSize: 16,
@@ -85,7 +84,6 @@ const EventCard = ({ event, onLike, onClick }) => {
           justifyContent: "center",
           border: "none",
           cursor: "pointer",
-          // 3. REMOVED backdropFilter
         }}
       >
         <Upload size={16} />
@@ -99,7 +97,6 @@ const EventCard = ({ event, onLike, onClick }) => {
           left: 0,
           right: 0,
           padding: "14px 18px",
-          // 4. PURPLE TINTED BAR
           background: "linear-gradient(to top, rgba(10, 2, 39, 0.7), rgba(10, 2, 39, 0.5))",
           backdropFilter: "blur(10px)",
           display: "flex",

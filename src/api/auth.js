@@ -1,4 +1,3 @@
-// src/api/auth.js
 import api from './client';
 
 // The base URL for authentication

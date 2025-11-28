@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import '../styles/PopupDialog.css'; // Keep your CSS file
+import '../styles/PopupDialog.css'; 
 
-// 1. The Internal Component
 const PopupComponent = ({ message, title, type, onConfirm, onCancel, close }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -43,7 +42,6 @@ const PopupComponent = ({ message, title, type, onConfirm, onCancel, close }) =>
   );
 };
 
-// 2. The "Render on the Fly" Logic
 const spawnPopup = ({ type, title, message }) => {
   return new Promise((resolve) => {
     // Create a temporary div to hold the popup
@@ -70,7 +68,7 @@ const spawnPopup = ({ type, title, message }) => {
   });
 };
 
-// 3. Exported Functions
+// Exported Functions
 export const confirm = async (message, title = "Are you sure?") => {
   return spawnPopup({ type: 'confirm', title, message });
 };

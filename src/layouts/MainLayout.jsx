@@ -1,7 +1,7 @@
-import React, { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import BottomNav from "../components/BottomNav";
-import { confirm, alert } from "../components/PopupDialog"; // Your popup import
+import { confirm, alert } from "../components/PopupDialog"; 
 
 const hideScrollbarStyle = `
   .no-scrollbar::-webkit-scrollbar {
@@ -21,7 +21,6 @@ export default function MainLayout() {
   
   const [isDebug, setIsDebug] = useState(false);
   
-  // REMOVED: const [showTestModal, setShowTestModal] = useState(false); <-- Not needed!
 
   useLayoutEffect(() => {
     // ... (your scroll logic) ...
@@ -33,13 +32,13 @@ export default function MainLayout() {
 
   // --- NEW: The function to trigger the popup ---
   const handleTestClick = async () => {
-    // 1. Trigger the confirmation popup and wait for click
+    // Trigger the confirmation popup and wait for click
     const result = await confirm(
       "You are testing the new popup system.<br/>Does it look good?", 
       "System Check"
     );
 
-    // 2. Handle the result (True = Yes, False = No)
+    // Handle the result (True = Yes, False = No)
     if (result) {
       await alert("Awesome! You clicked <b>Yes</b>.", "Success");
     } else {

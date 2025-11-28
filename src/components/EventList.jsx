@@ -2,14 +2,13 @@
 import React from "react";
 import EventCard from "./EventCard";
 
-// 1. Accept 'onEventClick' here
 const EventList = ({ events, onLike, onEventClick }) => {
   if (!events || events.length === 0) {
     return <p style={{ color: "var(--text-muted)" }}>No events found.</p>;
   }
   if (!Array.isArray(events)) {
         console.error("EventList received invalid data:", events);
-        return <div>Error loading events.</div>; // or return null;
+        return <div>Error loading events.</div>; 
     }
 
   return (
@@ -19,8 +18,6 @@ const EventList = ({ events, onLike, onEventClick }) => {
             key={ev.id} 
             event={ev} 
             onLike={onLike}
-            
-            // 2. Pass it down to the Card component
             onClick={() => onEventClick(ev.id)} 
         />
       ))}

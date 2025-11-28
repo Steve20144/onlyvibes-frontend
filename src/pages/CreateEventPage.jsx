@@ -1,28 +1,26 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createEvent } from "../api/events"; // Using eventService based on previous steps
-import { alert } from "../components/PopupDialog"; // <--- NEW IMPORT for Popups
+import { createEvent } from "../api/events";
+import { alert } from "../components/PopupDialog"; 
 import { UploadCloud, MapPin, Calendar, List, ChevronRight, ChevronLeft } from 'lucide-react';
 
 export const CreateEventPage = () => {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
-  // REMOVED: [error, setError] and [success, setSuccess]
 
-  // State for the form fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState(null);
   const [dateTime, setDateTime] = useState(null);
   const [category, setCategory] = useState(null); 
-  const [imageUrl, setImageUrl] = useState(null); // NOTE: Mocked
+  const [imageUrl, setImageUrl] = useState(null); 
 
   const handleGoBack = () => {
     navigate(-1);
   };
 
   const handleSubmit = async () => {
-    // 1. Validation (Using the alert popup)
+    // Validation (Using the alert popup)
     if (!title || !description || !location || !dateTime || !category) {
       await alert("Please fill out all required fields.", "Missing Fields");
       return;
@@ -31,7 +29,6 @@ export const CreateEventPage = () => {
     try {
       setSubmitting(true);
 
-      // Get the current date and time
       const now = new Date();
 
       // 1. Create a date object for the next month
@@ -39,7 +36,7 @@ export const CreateEventPage = () => {
       const nextMonthDate = new Date(now);
       nextMonthDate.setMonth(now.getMonth() + 1);
 
-      // 2. Adjust the time component based on the user's input (if applicable)
+      // Adjust the time component based on the user's input (if applicable)
       // If you are setting the time based on user input, you would typically combine 
       // the new date with the user's selected time (omitted here for simplicity).
       // Since the user input 'dateTime' likely holds the time component, we can use it 
@@ -61,10 +58,6 @@ export const CreateEventPage = () => {
         dateTime: nextMonthDate.toISOString(), // Ensure ISO format
         location,
         imageUrl: imageUrl || "https://picsum.photos/800/400?random=" + Date.now(),
-        
-        // REMOVE creatorId: IT IS NOW HANDLED BY THE SERVICE LAYER
-        
-        // 🟢 NEW: Include optional geospatial fields to prevent server from using null/undefined
         latitude: null, 
         longitude: null,
       };
@@ -169,8 +162,6 @@ export const CreateEventPage = () => {
         </div>
       </div>
 
-      {/* REMOVED: Error/Success Messages div */}
-
       {/* 5. Submit Button */}
       <button 
         style={styles.submitButton} 
@@ -191,7 +182,7 @@ export const CreateEventPage = () => {
   );
 };
 
-// --- STYLES (Preserved) ---
+// --- STYLES ---
 const styles = {
   pageContainer: {
     width: '100%',

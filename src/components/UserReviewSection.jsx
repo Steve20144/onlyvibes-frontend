@@ -7,12 +7,9 @@ import { confirm, alert } from '../components/PopupDialog';
 export default function UserReviewSection({ eventId, reviews, onRefresh }) {
     const userId = getCurrentUserId();
 
-    // 🟢 FIXED: "Deep Match" Logic
-    // This looks at every possible place the User ID could be hiding in the review object
     const existingReview = reviews.find(r => {
         if (!userId) return false;
 
-        // 1. Helper to safely grab a string ID from any variable (string or object)
         const extractId = (val) => {
             if (!val) return null;
             if (typeof val === 'string') return val;
@@ -21,13 +18,11 @@ export default function UserReviewSection({ eventId, reviews, onRefresh }) {
 
         const currentIdString = String(userId);
 
-        // 2. Check all possible fields the backend might be using
         const accountId = extractId(r.accountId);
         const uId = extractId(r.userId);
         const userObjId = extractId(r.user);
         const authorId = extractId(r.author);
 
-        // 3. Compare as Strings
         return (
             String(accountId) === currentIdString ||
             String(uId) === currentIdString ||
@@ -35,10 +30,6 @@ export default function UserReviewSection({ eventId, reviews, onRefresh }) {
             String(authorId) === currentIdString
         );
     });
-
-    // ------------------------------------------------------------
-    // The rest of the logic remains exactly the same as the Mockup
-    // ------------------------------------------------------------
 
     const [isEditing, setIsEditing] = useState(false);
     const [rating, setRating] = useState(0);
@@ -60,7 +51,6 @@ export default function UserReviewSection({ eventId, reviews, onRefresh }) {
         setLoading(true);
         try {
             if (existingReview) {
-                // Handle different ID keys (_id vs reviewId)
                 const revId = existingReview.reviewId || existingReview._id || existingReview.id;
                 await updateReview(eventId, revId, { rating, comment });
             } else {
@@ -93,7 +83,7 @@ export default function UserReviewSection({ eventId, reviews, onRefresh }) {
         }
     };
 
-    // --- FORM RENDER (Mockup Style) ---
+    // --- FORM RENDER ---
     const renderForm = () => (
         <div style={styles.card}>
             <h3 style={styles.cardTitle}>
@@ -133,7 +123,7 @@ export default function UserReviewSection({ eventId, reviews, onRefresh }) {
         </div>
     );
 
-    // --- THANK YOU CARD RENDER (Mockup Style) ---
+    // --- THANK YOU CARD RENDER ---
     const renderExistingReviewCard = () => (
         <div style={styles.card}>
             <h3 style={styles.cardTitle}>Thank you for your contribution!</h3>

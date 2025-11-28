@@ -13,7 +13,7 @@ const DEMO_EVENTS = [
     imageUrl: "https://images.pexels.com/photos/167636/pexels-photo-167636.jpeg",
     likesCount: 125,
     userHasLiked: false, 
-    userReview: null, // <--- ADDED
+    userReview: null,
   },
   {
     id: 2,
@@ -23,7 +23,7 @@ const DEMO_EVENTS = [
     imageUrl: "https://images.pexels.com/photos/2102568/pexels-photo-2102568.jpeg",
     likesCount: 543,
     userHasLiked: true, 
-    userReview: { rating: 5, comment: "Amazing!" }, // <--- ADDED
+    userReview: { rating: 5, comment: "Amazing!" }, 
   },
   {
     id: 3,
@@ -33,7 +33,7 @@ const DEMO_EVENTS = [
     imageUrl: "https://summerrockz.com/wp-content/uploads/2024/03/Lloret-de-Mar-NightLife.jpeg",
     likesCount: 342,
     userHasLiked: false,
-    userReview: null, // <--- ADDED
+    userReview: null, 
   },
   {
     id: 4,
@@ -43,7 +43,7 @@ const DEMO_EVENTS = [
     imageUrl: "https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg",
     likesCount: 88,
     userHasLiked: false,
-    userReview: null, // <--- ADDED
+    userReview: null, 
   },
   {
     id: 5,
@@ -53,7 +53,7 @@ const DEMO_EVENTS = [
     imageUrl: "https://images.pexels.com/photos/3754300/pexels-photo-3754300.jpeg",
     likesCount: 720,
     userHasLiked: true,
-    userReview: { rating: 4, comment: "Intense." }, // <--- ADDED
+    userReview: { rating: 4, comment: "Intense." }, 
   },
   {
     id: 6,
@@ -63,7 +63,7 @@ const DEMO_EVENTS = [
     imageUrl: "https://images.pexels.com/photos/167491/pexels-photo-167491.jpeg",
     likesCount: 215,
     userHasLiked: false,
-    userReview: null, // <--- ADDED
+    userReview: null, 
   },
   {
     id: 7,
@@ -73,7 +73,7 @@ const DEMO_EVENTS = [
     imageUrl: "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg",
     likesCount: 430,
     userHasLiked: false,
-    userReview: null, // <--- ADDED
+    userReview: null, 
   },
 ];
 
@@ -145,7 +145,6 @@ const ReviewedEventsPage = () => {
     }}>
       
       {/* --- 1. STICKY HEADER --- */}
-      {/* We can change this to a "Back" button later if you want */}
       <div style={{
         position: 'sticky',
         top: 0,
@@ -160,7 +159,7 @@ const ReviewedEventsPage = () => {
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
           <input 
             type="text"
-            placeholder="Search reviewed events..." // Changed placeholder
+            placeholder="Search reviewed events..." 
             value={searchQuery}
             onChange={handleSearch}
             style={{
@@ -199,12 +198,11 @@ const ReviewedEventsPage = () => {
       }}>
         {displayedEvents.length > 0 ? (
           <EventList 
-            events={displayedEvents} // Pass the correct state
+            events={displayedEvents} 
             onLike={handleLike} 
             onEventClick={handleEventClick}
           />
         ) : (
-          // Updated empty state message
           <p style={{ color: '#888', textAlign: 'center' }}>You haven't reviewed any events yet.</p>
         )}
       </div>
@@ -213,4 +211,4 @@ const ReviewedEventsPage = () => {
   );
 };
 
-export default ReviewedEventsPage; // Don't forget to change the export
+export default ReviewedEventsPage; 

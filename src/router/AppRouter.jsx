@@ -22,13 +22,13 @@ const AppRouter = () => (
     <Route path="/login" element={<LoginPage />} />
 
     <Route element={<MainLayout />}>
-      {/* 🟢 PUBLIC ROUTES (NO PROTECTED ROUTE WRAPPER) */}
+      {/* PUBLIC ROUTES (NO PROTECTED ROUTE WRAPPER) */}
       <Route path="/" element={<HomePage />} />
       <Route path="/search" element={<SearchPage />} />
       <Route path="/events/:id" element={<EventDetailsPage />} />
       <Route path="/profile" element={<ProfilePage />} />
 
-      {/* 🔒 PROTECTED ROUTES (ONLY THESE REQUIRE LOGIN) */}
+      {/* PROTECTED ROUTES (ONLY THESE REQUIRE LOGIN) */}
       <Route path="/events/create" element={<ProtectedRoute><CreateEventPage /></ProtectedRoute>} />
       <Route path="/profile/events/:id/edit" element={<ProtectedRoute><EditEventPage /></ProtectedRoute>} />
       <Route path="/events/liked" element={<ProtectedRoute><LikedEventsPage /></ProtectedRoute>} />

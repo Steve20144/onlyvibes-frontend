@@ -1,9 +1,5 @@
 import api from './client';
 
-// =========================================================
-// 1. CREATE (POST /accounts) - Sign Up
-// =========================================================
-
 /**
  * Creates a new user account.
  * @param {object} accountData - { firstName, lastName, email, password }
@@ -24,9 +20,6 @@ export const createAccount = async (accountData) => {
     return response.data || response;
 };
 
-// =========================================================
-// 2. READ (GET /accounts/:id) - Get Profile
-// =========================================================
 
 /**
  * Retrieves a specific account by ID.
@@ -43,10 +36,6 @@ export const getAccount = async (accountId) => {
 
     return response.data || response;
 };
-
-// =========================================================
-// 3. UPDATE (PUT /accounts/:id) - Edit Profile
-// =========================================================
 
 /**
  * Updates an existing account.
@@ -67,10 +56,6 @@ export const updateAccount = async (accountId, updates) => {
 
     return response.data || response;
 };
-
-// =========================================================
-// 4. DELETE (DELETE /accounts/:id) - Delete Account
-// =========================================================
 
 /**
  * Deletes a user account.

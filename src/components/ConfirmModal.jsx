@@ -1,6 +1,3 @@
-// src/components/ConfirmModal.jsx
-import React from 'react';
-
 export const ConfirmModal = ({ show, onClose, onConfirm, message, confirmText, cancelText }) => {
     if (!show) return null;
 

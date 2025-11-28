@@ -2,10 +2,6 @@ import api from './client';
 import { mapReview } from './mappers';
 import { getCurrentUserId } from './auth'; 
 
-// =========================================================
-// 1. SUBMIT/CREATE (POST /events/:eventId/reviews)
-// =========================================================
-
 /**
  * Creates/Submits a new review for an event.
  * @param {string} eventId - The ID of the event being reviewed.
@@ -23,9 +19,7 @@ export const submitReview = async (eventId, reviewData) => {
     const method = 'POST';
     const endpoint = `/events/${eventId}/reviews`;
     
-    console.log(`📡 API CALL: ${method} ${endpoint}`);
-    
-    // Backend expects 'accountId' in the body to associate the review
+    // console.log(`📡 API CALL: ${method} ${endpoint}`);
     const payload = { ...reviewData, accountId };
 
     const response = await api(endpoint, { 
@@ -35,11 +29,6 @@ export const submitReview = async (eventId, reviewData) => {
 
     return mapReview(response.data || response); 
 };
-
-
-// =========================================================
-// 2. UPDATE (PUT /events/:eventId/reviews/:reviewId)
-// =========================================================
 
 /**
  * Updates an existing review.
@@ -58,9 +47,7 @@ export const updateReview = async (eventId, reviewId, updates) => {
     const method = 'PUT';
     const endpoint = `/events/${eventId}/reviews/${reviewId}`;
     
-    console.log(`📡 API CALL: ${method} ${endpoint}`);
-    
-    // Backend requires accountId for verification
+    // console.log(`📡 API CALL: ${method} ${endpoint}`);
     const payload = { ...updates, accountId };
 
     const response = await api(endpoint, { 
@@ -70,11 +57,6 @@ export const updateReview = async (eventId, reviewId, updates) => {
 
     return mapReview(response.data || response); 
 };
-
-
-// =========================================================
-// 3. DELETE (DELETE /events/:eventId/reviews/:reviewId)
-// =========================================================
 
 /**
  * Deletes a review.
@@ -92,20 +74,15 @@ export const deleteReview = async (eventId, reviewId) => {
     const method = 'DELETE';
     const endpoint = `/events/${eventId}/reviews/${reviewId}`;
     
-    console.log(`📡 API CALL: ${method} ${endpoint}`);
+    // console.log(`📡 API CALL: ${method} ${endpoint}`);
     
     const payload = { accountId }; 
 
-    // DELETE requests send data in the 'data' config property
     await api(endpoint, { 
         method: method,
         data: payload 
     });
 };
-
-// =========================================================
-// 4. FETCH (GET /events/:eventId/reviews)
-// =========================================================
 
 /**
  * Fetches all reviews for a specific event.
@@ -123,7 +100,7 @@ export const fetchEventReviews = async (eventId) => {
         const response = await api(endpoint);
         const serverData = response.data; 
         
-        // 1. Extract the raw array from backend response
+        // Extract the raw array from backend response
         let rawReviews = [];
         
         // Scenario A: Backend returns array directly: [{}, {}]
@@ -135,17 +112,14 @@ export const fetchEventReviews = async (eventId) => {
             rawReviews = serverData.data;
         }
 
-        // 2. Map and Fix Data
+        // Map and Fix Data
         // We manually attach 'accountId' and 'username' because generic mappers often miss 
         // nested or specific backend fields required for the "My Review" feature.
         return rawReviews.map(r => {
             const mapped = mapReview(r);
             return {
                 ...mapped,
-                // Force preserve the Account ID so we can match the current user
                 accountId: r.accountId || r.userId || r.user?._id || r.user?.id,
-                
-                // Force preserve the Username so it doesn't show as "Anonymous"
                 username: r.username || r.user?.username || r.accountId?.username || "Community Member"
             };
         });
@@ -156,10 +130,6 @@ export const fetchEventReviews = async (eventId) => {
     }
 };
 
-// =========================================================
-// 5. FETCH USER'S REVIEWS (GET /accounts/:accountId/reviewed-events)
-// =========================================================
-
 /**
  * Lists all events that a specific user reviewed.
  * @returns {Promise<object[]>}
@@ -169,7 +139,7 @@ export const fetchUserReviewedEvents = async () => {
     const method = 'GET';
     const endpoint = `/accounts/${accountId}/reviewed-events`;
 
-    console.log(`📡 API CALL: ${method} ${endpoint}`);
+    // console.log(`📡 API CALL: ${method} ${endpoint}`);
 
     const response = await api(endpoint);
     return response.data; 

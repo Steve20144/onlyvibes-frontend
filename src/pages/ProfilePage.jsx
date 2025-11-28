@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUserId, logout } from '../api/auth';
 import { getAccount } from '../api/accounts'; 
@@ -17,7 +17,7 @@ import {
 
 export const ProfilePage = () => {
   const navigate = useNavigate();
-  const userId = getCurrentUserId(); // Get ID immediately
+  const userId = getCurrentUserId(); 
   
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,7 +25,6 @@ export const ProfilePage = () => {
   // 1. Fetch User Data on Load
   useEffect(() => {
     const loadUserData = async () => {
-      // 🟢 IF GUEST: Stop loading immediately, do not fetch
       if (!userId) {
         setLoading(false);
         return;
@@ -55,7 +54,7 @@ export const ProfilePage = () => {
     logout(() => navigate('/login')); 
   };
   
-  // 🟢 SHOW MOCKUP IF NOT LOGGED IN
+  // Show mockup if user is not logged in
   if (!userId) {
     return (
       <div style={styles.pageContainer}>
@@ -172,15 +171,14 @@ export const ProfilePage = () => {
 const styles = {
   pageContainer: {
     width: '100%',
-    minHeight: '100%', // Ensures it covers screen height
+    minHeight: '100%',
     backgroundColor: '#050016',
     color: 'white',
     padding: '20px 25px 100px 25px',
     boxSizing: 'border-box'
   },
-  // 🟢 NEW STYLES FOR GUEST VIEW
   guestContainer: {
-    height: '70vh', // Takes up most of the screen to center content
+    height: '70vh', 
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
@@ -195,8 +193,8 @@ const styles = {
   },
   guestSignInBtn: {
     backgroundColor: 'transparent',
-    border: '1px solid #00d4ff', // Cyan border
-    color: '#00d4ff',             // Cyan text
+    border: '1px solid #00d4ff',
+    color: '#00d4ff',           
     padding: '12px 40px',
     borderRadius: '30px',
     fontSize: '16px',
@@ -204,7 +202,6 @@ const styles = {
     fontWeight: '500',
     marginTop: '10px'
   },
-  // ... Existing Styles ...
   header: {
     display: 'flex',
     alignItems: 'center',

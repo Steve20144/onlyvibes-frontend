@@ -10,7 +10,6 @@ export default function BottomNav(){
     return pathname.startsWith(path);
   };
 
-  // --- 1. CHANGED COLORS ---
   const activeColor = "#FFFFFF";   // White
   const inactiveColor = "#888"; // Gray
 
@@ -20,16 +19,14 @@ export default function BottomNav(){
         width: '100%',
         zIndex: 50,
         display: 'flex',
-        alignItems: 'stretch', // <-- 2. STRETCH items vertically
+        alignItems: 'stretch', 
         background: '#000',
-        
-        // 3. ADDED PADDING HERE to control the height
         paddingTop: '10px',
         paddingBottom: '20px', // Extra for iPhone home bar area
       }}
       aria-label="Bottom navigation"
     >
-      {/* 4. APPLIED STYLES TO LINKS */}
+      {/* APPLIED STYLES TO LINKS */}
       <Link to="/" style={linkStyle}>
         <Home 
           className="w-6 h-6" 
@@ -57,7 +54,7 @@ export default function BottomNav(){
   );
 }
 
-// 5. HELPER STYLE FOR LINKS
+// HELPER STYLE FOR LINKS
 // This makes each link fill its space
 const linkStyle = {
   flex: 1, // This spaces them apart evenly

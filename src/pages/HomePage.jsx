@@ -1,16 +1,13 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import EventList from "../components/EventList"; 
-import { getEvents, likeEvent } from "../api/events"; // Assuming file is eventService.js
+import { getEvents, likeEvent } from "../api/events";
 import { alert } from "../components/PopupDialog";
-
-// No longer need static DEMO_EVENTS
-// const DEMO_EVENTS = [...]; 
 
 const HomePage = () => {
   const navigate = useNavigate(); 
   const [searchQuery, setSearchQuery] = useState("");
-  const [events, setEvents] = useState([]); // Start with empty array
+  const [events, setEvents] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,14 +16,12 @@ const HomePage = () => {
     setError(null);
     setIsLoading(true);
     try {
-      // fetchEvents now returns the clean array directly!
       const eventArray = await getEvents(filters); 
       
-      // setEvents gets the clean array or an empty array
       setEvents(eventArray); 
       
     } catch (err) {
-      // ... existing error handling ...
+
     } finally {
       setIsLoading(false);
     }
@@ -34,8 +29,8 @@ const HomePage = () => {
 
   useEffect(() => {
     loadEvents();
-  }, []); // Load initial events
-
+  }, []);
+  
   // --- API CALL: Handle dynamic search/filtering ---
   const handleSearch = (e) => {
     const q = e.target.value;

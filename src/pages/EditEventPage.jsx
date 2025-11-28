@@ -1,9 +1,7 @@
-// src/pages/EditEventPage.jsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-// I assumed your file is named eventService based on previous context
 import { getEvents, updateEventDetails } from '../api/events'; 
-import { confirm, alert } from '../components/PopupDialog'; // <--- NEW IMPORT
+import { confirm, alert } from '../components/PopupDialog'; 
 
 export const EditEventPage = () => {
   const { id } = useParams();
@@ -32,7 +30,6 @@ export const EditEventPage = () => {
       } catch (error) {
         console.error("Error loading event for edit:", error);
         setEvent(null); 
-        // REPLACED: Native alert with custom popup
         await alert('Could not load event data.', 'Error');
         navigate(-1); // Go back
       } finally {
@@ -58,7 +55,7 @@ export const EditEventPage = () => {
         return;
     }
 
-    // 2. Confirmation Popup (The "Safety Check")
+    // 2. Confirmation Popup 
     const isConfirmed = await confirm(
         "Are you sure you want to save these changes?",
         "Update Event"
@@ -197,7 +194,7 @@ export const EditEventPage = () => {
 };
 
 
-// --- Styles (Preserved exactly as provided) ---
+// --- Styles ---
 const styles = {
     pageContainer: {
         backgroundColor: '#120a24',

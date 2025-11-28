@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
-// 1. Import useNavigate hook
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { login as apiLogin, signup as apiSignup } from '../api/auth'; 
 import { alert } from '../components/PopupDialog'; 
 import '../styles/LoginPage.css';
 
 export default function LoginPage({ onSuccessRedirect = '/' }) {
-  // 2. Initialize the hook
   const navigate = useNavigate();
   
   const [isSigningUp, setIsSigningUp] = useState(false); 
@@ -20,7 +18,7 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
   useEffect(() => {
     const userId = localStorage.getItem('currentUserId');
     if (userId) {
-        // 3. Use navigate instead of window.location
+        // Use navigate instead of window.location
         navigate(onSuccessRedirect);
     }
   }, [onSuccessRedirect, navigate]);
@@ -56,7 +54,7 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
 
           await alert("Account created! Logging you in.", "Success");
           
-          // 4. Redirect immediately after OK is clicked
+          // Redirect immediately after OK is clicked
           navigate(onSuccessRedirect);
       } else {
           await alert("Account created! Please sign in.", "Success");
@@ -98,7 +96,7 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
 
       await alert("Welcome back!", "Signed In");
       
-      // 5. Redirect immediately
+      // Redirect immediately
       navigate(onSuccessRedirect);
 
     } catch (err) {
@@ -110,7 +108,7 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
     }
   };
 
-  // --- Render Fields (Unchanged) ---
+  // --- Render Fields ---
   const renderFormFields = () => (
     <>
       {isSigningUp && (

@@ -1,16 +1,8 @@
-// src/components/OrganizedEventCard.jsx
-import React from 'react';
-// ΑΦΑΙΡΕΙΤΑΙ ΤΟ HOOK: import { useNavigate } from 'react-router-dom';
-
-// Δέχεται το onCardClick ως prop
-const OrganizedEventCard = ({ event, onCardClick }) => {
-    // const navigate = useNavigate(); <--- Αφαιρέθηκε
-    
+const OrganizedEventCard = ({ event, onCardClick }) => {    
     const isCancelled = event.isCancelled;
 
     return (
         <div 
-            // Χρησιμοποιούμε τη συνάρτηση που μας δόθηκε από τον γονέα
             onClick={() => onCardClick(event.id)} 
             style={{
                 ...styles.eventCard,
@@ -56,7 +48,7 @@ const styles = {
     eventCard: {
         display: 'flex',
         alignItems: 'center',
-        backgroundColor: '#1e1330', // Card Dark
+        backgroundColor: '#1e1330', 
         borderRadius: '10px',
         marginBottom: '15px',
         padding: '10px',
@@ -88,7 +80,7 @@ const styles = {
         alignItems: 'center',
     },
     editIcon: {
-        color: '#fc4a1a', // Secondary color
+        color: '#fc4a1a',
         fontSize: '24px',
         marginLeft: '15px',
         flexShrink: 0,

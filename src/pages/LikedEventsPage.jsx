@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EventList from "../components/EventList"; 
 
@@ -23,7 +23,6 @@ const DEMO_EVENTS = [
     likesCount: 543,
     userHasLiked: true, 
   },
-  // ... (all your other events) ...
   {
     id: 7,
     title: "Rooftop Party",
@@ -93,7 +92,6 @@ const LikedEventsPage = () => {
     }}>
       
       {/* --- 1. STICKY HEADER --- */}
-      {/* We can change this later if you want a "Back" button */}
       <div style={{
         position: 'sticky',
         top: 0,
@@ -108,7 +106,7 @@ const LikedEventsPage = () => {
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
           <input 
             type="text"
-            placeholder="Search liked events..." // Changed placeholder
+            placeholder="Search liked events..." 
             value={searchQuery}
             onChange={handleSearch}
             style={{
@@ -119,7 +117,7 @@ const LikedEventsPage = () => {
           />
         </div>
 
-        {/* Filter Row - You might want to remove this for this page */}
+        {/* Filter Row */}
         <div style={{ 
           display: 'flex', 
           flexDirection: 'row', 
@@ -147,7 +145,7 @@ const LikedEventsPage = () => {
       }}>
         {displayedEvents.length > 0 ? (
           <EventList 
-            events={displayedEvents} // Pass the correct state
+            events={displayedEvents}
             onLike={handleLike} 
             onEventClick={handleEventClick}
           />
@@ -160,4 +158,4 @@ const LikedEventsPage = () => {
   );
 };
 
-export default LikedEventsPage; // Don't forget to change the export
+export default LikedEventsPage;
