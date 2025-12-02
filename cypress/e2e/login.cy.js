@@ -1,15 +1,15 @@
 describe('Login Page Tests', () => {
 
-  // Test 1: Unhappy Path (Wrong Credentials)
+  // --- UNHAPPY PATH: WRONG CREDENTIALS ---
   it('Should show an error popup for missing/wrong credentials', () => {
     cy.visit('/');
 
     // Navigate to Login
     cy.get('a[href="/profile"]').click();
-    cy.get('.guest-sign-in-button').click();
+    cy.contains('Sign In to view Profile').click();
     
     // Click Sign In without typing anything
-    cy.get('.login-btn').click();
+    cy.contains('button', 'Sign In').click();
 
     // Assert the custom error message
     cy.get('.modal-box').should('be.visible');
@@ -19,7 +19,7 @@ describe('Login Page Tests', () => {
     cy.get('.modal-btn').click();
   });
 
-  // Test 2: Happy Path (Successful Login)
+  // --- HAPPY PATH: SUCCESSFUL LOGIN ---
   it('Should allow a user to sign in successfully', () => {
     // We can manually write the steps here to test them, 
     // OR just use the command we made to verify it works.

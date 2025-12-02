@@ -120,6 +120,7 @@ export const CreateEventPage = () => {
         <div style={styles.inputGroup}>
           <label style={styles.label}>Title</label>
           <input
+            data-testid="event-title-input"
             type="text"
             placeholder="Insert the name of the event..."
             value={title}
