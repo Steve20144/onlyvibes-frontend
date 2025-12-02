@@ -63,6 +63,7 @@ export const ProfilePage = () => {
             <button 
                 style={styles.guestSignInBtn}
                 onClick={() => navigate('/login')}
+                className='guest-sign-in-button'
             >
                 Sign In
             </button>
