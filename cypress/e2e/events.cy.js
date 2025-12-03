@@ -37,6 +37,23 @@ describe('OnlyVibes Event Lifecycle', () => {
       cy.contains('Cypress Test Party').should('exist');
     });
 
+    // --- HAPPY PATH: SEE EVENT DETAILS ---
+    it('Should view event details', () => {
+      
+      // Click on the event we just created
+      cy.contains('Cypress Test Party').click();
+
+      // Should see About section
+      cy.contains('About').should('exist');
+
+      // Should see date
+      cy.contains('Date').should('exist');
+
+      // Should see reviews
+      cy.contains('Community Vibes').should('exist');
+
+    });
+
     // --- HAPPY PATH: DELETE ---
     it('Should delete an Event', () => {
 

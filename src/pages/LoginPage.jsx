@@ -119,6 +119,7 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
             onChange={(e) => setUsername(e.target.value)} 
             className="login-input" 
             placeholder="coolUser123" 
+            type="username"
             autoComplete="username"
           />
         </div>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUserId, logout } from '../api/auth';
-import { getAccount } from '../api/accounts'; 
+import { getAccount, deleteAccount } from '../api/accounts'; 
+import { confirm, alert } from '../components/PopupDialog';
 import { 
   CheckCircle, 
   User,
@@ -12,7 +13,8 @@ import {
   SlidersHorizontal, 
   ChevronRight, 
   LogOut,
-  Edit2
+  Edit2,
+  Trash
 } from 'lucide-react';
 
 export const ProfilePage = () => {
@@ -52,6 +54,27 @@ export const ProfilePage = () => {
   // 2. Fixed Logout Handler
   const handleLogout = () => {
     logout(() => navigate('/login')); 
+  };
+
+  // Account Delete Handler
+  const handleAccountDelete = async () => {
+
+    const isConfirmed = await confirm(
+              "Are you sure you want to delete this acount? This action cannot be undone.", 
+              "Delete Account"
+          );
+    
+          if (isConfirmed) {
+              try {
+                  await alert("Account Deleted Successfully", "Deleted");
+                  logout(() => navigate('/login')); 
+                  await deleteAccount(userId);
+              } catch (error) {
+                  await alert("Failed to delete account. Please try again.", "Error");
+              }
+          }
+    
+    
   };
   
   // Show mockup if user is not logged in
@@ -162,6 +185,7 @@ export const ProfilePage = () => {
         
         <div style={styles.divider} />
         <MenuItem icon={<LogOut size={20} />} text="Logout" onClick={handleLogout} isLogout={true} />
+        <MenuItem icon={<Trash size={20} />} text="Delete Account" onClick={handleAccountDelete} isLogout={true} />
       </div>
 
     </div>

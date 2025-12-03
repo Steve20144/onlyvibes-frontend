@@ -26,6 +26,18 @@
 
   // // Helper to log in before tests that require auth
   
+Cypress.Commands.add('navigateToLogin', () => {
+
+  cy.visit('/');
+
+  // Navigate to Login
+  cy.get('a[href="/profile"]').click();
+  cy.contains('Sign In to view profile');
+  cy.contains('button', 'Sign In').click();
+
+  
+})
+ 
 Cypress.Commands.add('loginUser', (email, password) => {
   
     cy.visit('/');
