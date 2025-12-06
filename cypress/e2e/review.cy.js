@@ -1,10 +1,36 @@
 describe('Review Flows', () => {
 
-  it('shows validation error when user attempts to create a review without rating stars', () => {
+    let sharedEventName; // Χρησιμοποιείται για να αποθηκευτεί το eventName
+    
+    // 1. AFTER HOOK: Τρέχει μία φορά μετά από ΟΛΑ τα tests. Εγγυάται το cleanup του Shared Event.
+    after(() => {
+        cy.log('FINAL CLEANUP: Checking for shared event deletion...');
+        
+        // Χρησιμοποιούμε το eventName που αποθηκεύτηκε στο Test 2
+        const eventName = Cypress.env('eventName'); 
+        
+        if (eventName) {
+            cy.log(`Deleting shared event: ${eventName}`);
+            cy.loginUser('panos@gmail.com', 'panos');
+            cy.deleteEvent(); // Εδώ γίνεται ο καθαρισμός του shared event
+        } else {
+            cy.log('No shared event found in env to delete.');
+        }
+        
+        // Clear stored env values
+        Cypress.env('eventName', null);
+        Cypress.env('reviewText', null);
+    });
+    
+    // ----------------------------------------------------------------------
+    // 1. ΔΟΚΙΜΗ: Validation Error (Ανεξάρτητη)
+    // ----------------------------------------------------------------------
+
+    it('shows validation error when user attempts to create a review without rating stars', () => {
     // Login
     cy.loginUser('panos@gmail.com', 'panos');
     
-    // Πλοήγηση στην Home page 
+    // Πλοήγηση στην Home page (Απαραίτητο)
     cy.visit('/'); 
 
     // Create a NEW fake event for this test's independence
@@ -46,10 +72,14 @@ describe('Review Flows', () => {
     cy.get('textarea').should('have.value', reviewText);
 
     // Cleanup: delete the fake event we created in this test
-    cy.deleteEvent();
+    cy.deleteEvent(); // <--- Διαγράφει το ανεξάρτητο event
     cy.log('Cleanup complete for rating validation test.');
   });
 
+
+    // ----------------------------------------------------------------------
+    // 2. ΔΟΚΙΜΗ: Create Review (Δημιουργεί το Shared Event)
+    // ----------------------------------------------------------------------
 
   it('create a review on a newly created fake event', () => {
     // Login
@@ -108,10 +138,12 @@ describe('Review Flows', () => {
         cy.contains(reviewText, { timeout: 10000 }).should('be.visible');
       }
     );
-
-    // Do NOT delete the event here (cleanup happens in delete test)
   });
 
+
+    // ----------------------------------------------------------------------
+    // 3. ΔΟΚΙΜΗ: Cancel Review Deletion (Χρησιμοποιεί το Shared Event)
+    // ----------------------------------------------------------------------
 
   it('cancel review deletion', () => { 
       // Login
@@ -148,7 +180,7 @@ describe('Review Flows', () => {
         return false; // ΑΚΥΡΩΣΗ
       });
 
-      // Click delete (X). Η DELETE κλήση δεν θα σταθεί.
+      // Click delete (X). 
       cy.get('button:has(svg.lucide-x)', { timeout: 10000 }).first().should('be.visible').click();
 
       // Ensure UI updated and the review IS STILL VISIBLE
@@ -162,8 +194,11 @@ describe('Review Flows', () => {
           cy.contains(reviewText, { timeout: 10000 }).should('be.visible'); // ΕΛΕΓΧΟΥΜΕ ΟΤΙ ΕΙΝΑΙ ΑΚΟΜΑ ΕΚΕΙ
         }
       );
+});
 
-    });
+    // ----------------------------------------------------------------------
+    // 4. ΔΟΚΙΜΗ: Successful Delete (Χρησιμοποιεί το Shared Event)
+    // ----------------------------------------------------------------------
 
   it('delete a review from the previously created fake event and then delete the event', () => {
     // Login
@@ -222,8 +257,9 @@ describe('Review Flows', () => {
     cy.url({ timeout: 10000 }).should('include', '/events/');
 
     // Cleanup: delete the fake event we created earlier
-    cy.deleteEvent();
-
+    cy.deleteEvent(); // <--- Εδώ ΔΕΝ χρειάζεται πλέον, το κάνει το after() hook
+    // Το after() hook θα καθαρίσει το eventName.
+    
     // Clear stored env values so subsequent tests won't look for deleted resources
     Cypress.env('eventName', null);
     Cypress.env('reviewText', null);
