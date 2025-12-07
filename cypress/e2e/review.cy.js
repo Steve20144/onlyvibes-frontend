@@ -1,268 +1,134 @@
 describe('Review Flows', () => {
 
-    let sharedEventName; // Χρησιμοποιείται για να αποθηκευτεί το eventName
-    
-    // 1. AFTER HOOK: Τρέχει μία φορά μετά από ΟΛΑ τα tests. Εγγυάται το cleanup του Shared Event.
-    after(() => {
-        cy.log('FINAL CLEANUP: Checking for shared event deletion...');
-        
-        // Χρησιμοποιούμε το eventName που αποθηκεύτηκε στο Test 2
-        const eventName = Cypress.env('eventName'); 
-        
-        if (eventName) {
-            cy.log(`Deleting shared event: ${eventName}`);
-            cy.loginUser('panos@gmail.com', 'panos');
-            cy.deleteEvent(); // Εδώ γίνεται ο καθαρισμός του shared event
-        } else {
-            cy.log('No shared event found in env to delete.');
-        }
-        
-        // Clear stored env values
-        Cypress.env('eventName', null);
-        Cypress.env('reviewText', null);
+  // Shared env cleanup (αν υπάρχει) μετά από όλα τα tests
+  after(() => {
+    const eventName = Cypress.env('eventName');
+    if (eventName) {
+      cy.loginUser('panos@gmail.com', 'panos');
+      cy.visit('/');
+      cy.deleteEvent();
+    }
+    Cypress.env('eventName', null);
+    Cypress.env('reviewText', null);
+  });
+
+  // 1. Validation χωρίς rating (ανεξάρτητο)
+  it('shows validation error when user attempts to create a review without rating stars', () => {
+    cy.loginUser('panos@gmail.com', 'panos');
+    cy.visit('/');
+
+    cy.createFakeEvent();
+
+    cy.get('@eventName').then((eventName) => {
+      cy.contains(eventName, { timeout: 10000 }).should('be.visible').click();
     });
-    
-    // ----------------------------------------------------------------------
-    // 1. ΔΟΚΙΜΗ: Validation Error (Ανεξάρτητη)
-    // ----------------------------------------------------------------------
 
-    it('shows validation error when user attempts to create a review without rating stars', () => {
-    // Login
-    cy.loginUser('panos@gmail.com', 'panos');
-    
-    // Πλοήγηση στην Home page (Απαραίτητο)
-    cy.visit('/'); 
+    const reviewText = 'Review without rating ' + Date.now();
+    cy.intercept('POST', '**/events/*/reviews').as('attemptCreateReview');
 
-    // Create a NEW fake event for this test's independence
-    cy.createFakeEvent();
+    cy.get('textarea', { timeout: 10000 }).should('be.visible').clear().type(reviewText);
 
-    // Open the newly created event 
-    cy.get('@eventName').then((eventName) => {
-      cy.contains(eventName, { timeout: 10000 }).should('be.visible').click();
-    });
+    cy.contains('button', /submit|post|send|add|create/i, { timeout: 10000 }).click();
 
-    // Prepare unique review text
-    const reviewText = 'Review without rating ' + Date.now();
+    cy.contains('Please add a star rating!', { timeout: 10000 }).should('be.visible');
+    cy.contains('button', 'OK', { timeout: 10000 }).click();
+    cy.get('textarea').should('have.value', reviewText);
 
-    // Intercept the POST request (γιατί η κλήση ΔΕΝ θα πρέπει να σταλεί)
-    cy.intercept('POST', '**/events/*/reviews').as('attemptCreateReview');
-    
-    // Write review text, but DO NOT CLICK the rating stars
-    cy.get('textarea', { timeout: 10000 }).should('be.visible').clear().type(reviewText);
+    cy.deleteEvent();
+  });
 
-    // Click submit 
-    cy.contains('button', /submit|post|send|add|create/i, { timeout: 10000 }).then($btn => {
-      if ($btn.length) {
-        cy.wrap($btn).click();
-      } else {
-        cy.get('button[type="submit"]').click();
-      }
-    });
-    
-    // --- ΕΛΕΓΧΟΣ ΕΠΙΚΥΡΩΣΗΣ (VALIDATION CHECK) ---
-    
-    // 1. Assert that the validation error message appears inside the modal
-    cy.contains('Please add a star rating!', { timeout: 10000 })
-        .should('be.visible');
+  // 2. Δημιουργία review (δημιουργεί shared event)
+  it('create a review on a newly created fake event', () => {
+    cy.loginUser('panos@gmail.com', 'panos');
+    cy.visit('/');
 
-    // 2. Click the OK button to close the modal
-    cy.contains('button', 'OK', { timeout: 10000 }).should('be.visible').click();
+    cy.createFakeEvent();
 
-    // 3. Assert that the review text is still visible
-    cy.get('textarea').should('have.value', reviewText);
+    cy.get('@eventName').then((eventName) => {
+      Cypress.env('eventName', eventName);
+      cy.contains(eventName, { timeout: 10000 }).should('be.visible').click();
+    });
 
-    // Cleanup: delete the fake event we created in this test
-    cy.deleteEvent(); // <--- Διαγράφει το ανεξάρτητο event
-    cy.log('Cleanup complete for rating validation test.');
-  });
+    const reviewText = 'This is a test review ' + Date.now();
+    Cypress.env('reviewText', reviewText);
 
+    cy.intercept('POST', '**/events/*/reviews').as('createReview');
+    cy.intercept('GET', '**/events/*/reviews').as('getReviews');
 
-    // ----------------------------------------------------------------------
-    // 2. ΔΟΚΙΜΗ: Create Review (Δημιουργεί το Shared Event)
-    // ----------------------------------------------------------------------
+    cy.get('textarea', { timeout: 10000 }).should('be.visible').clear().type(reviewText);
+    cy.get('svg.lucide-star').eq(4).should('be.visible').click();
 
-  it('create a review on a newly created fake event', () => {
-    // Login
-    cy.loginUser('panos@gmail.com', 'panos');
-    
-    // Πλοήγηση στην Home page (απαραίτητο)
-    cy.visit('/');
+    cy.contains('button', /submit|post|send|add|create/i, { timeout: 10000 }).click();
 
-    // Ensure we're at home
-    cy.location('pathname', { timeout: 10000 }).should('eq', '/');
+    cy.wait('@createReview', { timeout: 15000 }).its('response.statusCode').should('be.oneOf', [200, 201]);
 
-    // Create a fake event (stores name as @eventName)
-    cy.createFakeEvent();
+    cy.wait('@getReviews', { timeout: 15000 }).then(
+      () => cy.contains(reviewText, { timeout: 10000 }).should('be.visible'),
+      () => { cy.reload(); cy.contains(reviewText, { timeout: 10000 }).should('be.visible'); }
+    );
+  });
 
-    // Open the newly created event and store eventName in env for other tests
-    cy.get('@eventName').then((eventName) => {
-      Cypress.env('eventName', eventName);
-      cy.contains(eventName, { timeout: 10000 }).should('be.visible').click();
-    });
+  // 3. Ακύρωση διαγραφής
+  it('cancel review deletion', () => {
+    cy.loginUser('panos@gmail.com', 'panos');
+    cy.visit('/');
 
-    // Prepare unique review text
-    const reviewText = 'This is a test review ' + Date.now();
+    const eventName = Cypress.env('eventName');
+    const reviewText = Cypress.env('reviewText');
+    if (!eventName || !reviewText) throw new Error('Missing shared event/review data');
 
-    // store reviewText in env so delete-test can use it later
-    Cypress.env('reviewText', reviewText);
+    cy.contains(eventName, { timeout: 10000 }).should('be.visible').click();
 
-    // Intercept review POST and the subsequent GET that refreshes the list
-    cy.intercept('POST', '**/events/*/reviews').as('createReview');
-    cy.intercept('GET', '**/events/*/reviews').as('getReviews');
+    cy.intercept('GET', '**/events/*/reviews').as('getReviews');
+    cy.contains(reviewText, { timeout: 10000 }).should('be.visible');
 
-    // Write and submit a review
-    cy.get('textarea', { timeout: 10000 }).should('be.visible').clear().type(reviewText);
-    cy.get('svg.lucide-star').eq(4).should('be.visible').click();
+    cy.on('window:confirm', (text) => {
+      expect(text).to.contain('Delete your review');
+      return false; // ακύρωση
+    });
 
-    // Click submit in a robust way
-    cy.contains('button', /submit|post|send|add|create/i, { timeout: 10000 }).then($btn => {
-      if ($btn.length) {
-        cy.wrap($btn).click();
-      } else {
-        cy.get('button[type="submit"]').click();
-      }
-    });
+    cy.get('button:has(svg.lucide-x)', { timeout: 10000 }).first().click();
 
-    // Wait for backend response and assert status
-    cy.wait('@createReview', { timeout: 15000 }).its('response.statusCode').should('be.oneOf', [200, 201]);
+    cy.wait('@getReviews', { timeout: 10000 }).then(
+      () => cy.contains(reviewText, { timeout: 10000 }).should('be.visible'),
+      () => { cy.reload(); cy.contains(reviewText, { timeout: 10000 }).should('be.visible'); }
+    );
+  });
 
-    // Wait for the reviews GET (UI to refresh) if the app makes one
-    cy.wait('@getReviews', { timeout: 15000 }).then(
-      () => {
-        // success path: GET happened
-        cy.contains(reviewText, { timeout: 10000 }).should('be.visible');
-      },
-      () => {
-        // failure path: no GET happened within timeout — reload as fallback
-        cy.reload();
-        cy.contains(reviewText, { timeout: 10000 }).should('be.visible');
-      }
-    );
-  });
+  // 4. Επιτυχής διαγραφή review και event
+  it('delete a review from the previously created fake event and then delete the event', () => {
+    cy.loginUser('panos@gmail.com', 'panos');
+    cy.visit('/');
 
+    const eventName = Cypress.env('eventName');
+    const reviewText = Cypress.env('reviewText');
+    if (!eventName || !reviewText) throw new Error('Missing shared event/review data');
 
-    // ----------------------------------------------------------------------
-    // 3. ΔΟΚΙΜΗ: Cancel Review Deletion (Χρησιμοποιεί το Shared Event)
-    // ----------------------------------------------------------------------
+    cy.contains(eventName, { timeout: 10000 }).should('be.visible').click();
 
-  it('cancel review deletion', () => { 
-      // Login
-      cy.loginUser('panos@gmail.com', 'panos');
+    cy.intercept('DELETE', '**/events/*/reviews/*').as('deleteReview');
+    cy.intercept('GET', '**/events/*/reviews').as('getReviews');
 
-      // Πλοήγηση στην Home page (απαραίτητο)
-      cy.visit('/');
-      
-      // Ensure we're at home
-      cy.location('pathname', { timeout: 10000 }).should('eq', '/');
+    cy.contains(reviewText, { timeout: 10000 }).should('be.visible');
 
-      // Open the event created by the previous test (use env value)
-      const eventName = Cypress.env('eventName');
-      if (!eventName) {
-        throw new Error('eventName not found in Cypress.env — ensure the create test ran and set it.');
-      }
-      cy.contains(eventName, { timeout: 10000 }).should('be.visible').click();
+    cy.on('window:confirm', (text) => {
+      expect(text).to.contain('Delete your review');
+      return true; // αποδοχή
+    });
 
-      // Retrieve the review text created earlier
-      const reviewText = Cypress.env('reviewText');
-      if (!reviewText) {
-        throw new Error('reviewText not found in Cypress.env — ensure the create test ran and set it.');
-      }
+    cy.get('button:has(svg.lucide-x)', { timeout: 10000 }).first().click();
 
-      // Intercept only the subsequent GET (for list refresh)
-      cy.intercept('GET', '**/events/*/reviews').as('getReviews');
+    cy.wait('@deleteReview', { timeout: 10000 }).its('response.statusCode').should('be.oneOf', [200, 204]);
 
-      // Ensure the review exists before attempting delete
-      cy.contains(reviewText, { timeout: 10000 }).should('be.visible');
+    cy.wait('@getReviews', { timeout: 10000 }).then(
+      () => cy.contains(reviewText, { timeout: 10000 }).should('not.exist'),
+      () => { cy.reload(); cy.contains(reviewText, { timeout: 10000 }).should('not.exist'); }
+    );
 
-      // Handle native confirm and REJECT it (click No/Cancel)
-      cy.on('window:confirm', (text) => {
-        expect(text).to.contain('Delete your review');
-        return false; // ΑΚΥΡΩΣΗ
-      });
+    cy.url({ timeout: 10000 }).should('include', '/events/');
+    cy.deleteEvent();
+    Cypress.env('eventName', null);
+    Cypress.env('reviewText', null);
+  });
 
-      // Click delete (X). 
-      cy.get('button:has(svg.lucide-x)', { timeout: 10000 }).first().should('be.visible').click();
-
-      // Ensure UI updated and the review IS STILL VISIBLE
-      cy.wait('@getReviews', { timeout: 10000 }).then(
-        () => {
-          cy.contains(reviewText, { timeout: 10000 }).should('be.visible'); // ΕΛΕΓΧΟΥΜΕ ΟΤΙ ΕΙΝΑΙ ΑΚΟΜΑ ΕΚΕΙ
-        },
-        () => {
-          // Fallback path: If GET reviews didn't happen, ensure the review is still there after a reload.
-          cy.reload();
-          cy.contains(reviewText, { timeout: 10000 }).should('be.visible'); // ΕΛΕΓΧΟΥΜΕ ΟΤΙ ΕΙΝΑΙ ΑΚΟΜΑ ΕΚΕΙ
-        }
-      );
-});
-
-    // ----------------------------------------------------------------------
-    // 4. ΔΟΚΙΜΗ: Successful Delete (Χρησιμοποιεί το Shared Event)
-    // ----------------------------------------------------------------------
-
-  it('delete a review from the previously created fake event and then delete the event', () => {
-    // Login
-    cy.loginUser('panos@gmail.com', 'panos');
-
-      // Πλοήγηση στην Home page (απαραίτητο)
-      cy.visit('/');
-      
-    // Ensure we're at home
-    cy.location('pathname', { timeout: 10000 }).should('eq', '/');
-
-    // Open the event created by the previous test (use env value)
-    const eventName = Cypress.env('eventName');
-    if (!eventName) {
-      throw new Error('eventName not found in Cypress.env — ensure the create test ran and set it.');
-    }
-    cy.contains(eventName, { timeout: 10000 }).should('be.visible').click();
-
-    // Retrieve the review text created earlier
-    const reviewText = Cypress.env('reviewText');
-    if (!reviewText) {
-      throw new Error('reviewText not found in Cypress.env — ensure the create test ran and set it.');
-    }
-
-    // Intercept delete request (and optional GET)
-    cy.intercept('DELETE', '**/events/*/reviews/*').as('deleteReview');
-    cy.intercept('GET', '**/events/*/reviews').as('getReviews');
-
-    // Ensure the review exists before attempting delete
-    cy.contains(reviewText, { timeout: 10000 }).should('be.visible');
-
-    // Handle native confirm and accept it
-    cy.on('window:confirm', (text) => {
-      expect(text).to.contain('Delete your review');
-      return true; // accept native confirm dialog
-    });
-
-    // Click delete (X)
-    cy.get('button:has(svg.lucide-x)', { timeout: 10000 }).first().should('be.visible').click();
-
-    // Wait for delete request and assert success
-    cy.wait('@deleteReview', { timeout: 10000 }).its('response.statusCode').should('be.oneOf', [200, 204]);
-
-    // Ensure UI updated (try waiting for reviews GET, otherwise use contains not.exist)
-    cy.wait('@getReviews', { timeout: 10000 }).then(
-      () => {
-        cy.contains(reviewText, { timeout: 10000 }).should('not.exist');
-      },
-      () => {
-        cy.reload();
-        cy.contains(reviewText, { timeout: 10000 }).should('not.exist');
-      }
-    );
-
-    // Ensure still on event page before deleting event
-    cy.url({ timeout: 10000 }).should('include', '/events/');
-
-    // Cleanup: delete the fake event we created earlier
-    cy.deleteEvent(); // <--- Εδώ ΔΕΝ χρειάζεται πλέον, το κάνει το after() hook
-    // Το after() hook θα καθαρίσει το eventName.
-    
-    // Clear stored env values so subsequent tests won't look for deleted resources
-    Cypress.env('eventName', null);
-    Cypress.env('reviewText', null);
-  });
-  
 });
