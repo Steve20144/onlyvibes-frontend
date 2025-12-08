@@ -27,7 +27,7 @@ OnlyVibes is a social event discovery platform designed to help users find, crea
 
 ---
 
-## 📋 Assignment Requirements Compliance Matrix
+## 📋 Assignment 1 Requirements Compliance Matrix
 
 This project was built to strictly adhere to the **"Software Engineering 2 - Deliverable 1"** specifications.
 
@@ -80,3 +80,41 @@ src/
 ├── pages/          # Full screen components
 ├── router/         # Protected routes and navigation paths
 └── styles/         # Global styles
+
+```
+---
+
+
+## 🧪 Testing Strategy & Quality Assurance (Deliverable 2)
+
+To ensure system reliability and maintainability, we have implemented a robust End-to-End (E2E) testing strategy using **Cypress**. This setup simulates real user behavior to validate critical workflows before any code reaches production.
+
+### 1. E2E Test Coverage (Frontend)
+We have developed automated tests covering **3 distinct User Flows** that span across all core application screens (Login, Home, Event Details, Profile).
+
+| Flow Category | Test Suite | Scenarios Covered (Happy & Unhappy Paths) |
+| :--- | :--- | :--- |
+| **Authentication** | `login.cy.js` | • **Happy:** Successful Login, Sign Up, and Account Deletion.<br>• **Unhappy:** Empty credentials submission, Duplicate email registration handling.<br>• **UI:** Modal validation errors and redirection logic. |
+| **Event Lifecycle** | `events.cy.js` | • **Happy:** Create Event (with form fill), View Event Details, Delete Event.<br>• **Unhappy:** Creation attempts with missing Title or Description.<br>• **Guest:** Verification that unauthenticated users cannot access "Create" features. |
+| **Review Lifecycle** | `review.cy.js` | • **Happy:** Posting a review with a star rating, canceling deletion, successful deletion.<br>• **Unhappy:** Attempting to submit a review without a star rating (Validation check). |
+
+### 2. CI/CD Pipeline
+We have established a Continuous Integration and Continuous Deployment pipeline using **GitHub Actions** to automate quality checks and deployment.
+
+* **Continuous Integration (CI):** On every push to the `main` branch, the pipeline spins up a virtual Ubuntu environment, installs dependencies, starts the local server (`npm start`), and executes the full Cypress test suite.
+* **Continuous Deployment (CD):** The deployment to **Render** is strictly conditional. The deploy hook is only triggered if **all** Cypress tests pass successfully, ensuring that broken code never reaches the live production environment.
+
+---
+
+## 📋 Assignment 2 Compliance Matrix
+
+This section tracks adherence to the specific requirements set for the **"Software Engineering 2 - Deliverable 2"** assignment.
+
+| Requirement ID | Description | Status | Implementation Details |
+| :--- | :--- | :--- | :--- |
+| **Testing-01** | **E2E Acceptance Tests** | ✅ **Done** | Implemented E2E tests for **3 User Flows** (Auth, Events, Reviews) covering both Happy and Unhappy paths. |
+| **Testing-02** | **Screen Coverage** | ✅ **Done** | Tests cover interactions on all primary screens: Login, Profile, Home Feed, and Event Details. |
+| **DevOps-01** | **CI/CD Pipeline** | ✅ **Done** | Configured GitHub Actions to run tests automatically on push. Deployment to production is blocked if tests fail. |
+| **DevOps-02** | **Deployment** | ✅ **Done** | Both Frontend and Backend are successfully deployed to **Render** and communicate correctly. |
+
+---
