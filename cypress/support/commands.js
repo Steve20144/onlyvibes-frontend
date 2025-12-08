@@ -63,3 +63,53 @@ Cypress.Commands.add('loginUser', (email, password) => {
     cy.get('.modal-btn').click();
 
 })
+// ...existing code...
+
+Cypress.Commands.add('createFakeEvent', () => {
+  // Navigate to profile
+  cy.get('a[href="/profile"]').click();
+
+  // Click Create Event Button
+  cy.contains('Create an Event').click();
+
+  // Fill form with unique event name (using timestamp to avoid duplicates)
+  const eventName = 'Test Event ' + Date.now();
+  cy.get('[data-testid="event-title-input"]').type(eventName);
+  cy.contains('label', 'Description').parent().find('textarea').type('This is a test event for review testing');
+  
+  // Click the three Select dropdowns (Category, Date, Time)
+  cy.contains('Select').click(); 
+  cy.contains('Select').click();
+  cy.contains('Select').click();
+
+  // Submit
+  cy.contains('button', 'Create Event').click();
+
+  // Handle Success Popup
+  cy.get('.modal-box').should('be.visible');
+  cy.get('.modal-btn').click();
+
+  // Return to home and verify event was created
+  cy.location('pathname', { timeout: 10000 }).should('eq', '/');
+  cy.contains(eventName).should('exist');
+  
+  // Store event name for later use (e.g., for deletion)
+  cy.wrap(eventName).as('eventName');
+});
+
+Cypress.Commands.add('deleteEvent', () => {
+  // Assuming we're on the event detail page
+  // Click Delete button (trash icon)
+  cy.get('svg.lucide-trash-2').parent('button').click();
+
+  // Confirm Deletion in first Popup
+  cy.get('.modal-box').should('be.visible');
+  cy.contains('button', 'Yes').click();
+
+  // Close confirmation Popup (OK button)
+  cy.get('.modal-box').should('be.visible');
+  cy.contains('button', 'OK').click();
+
+  // Verify redirect to home
+  cy.location('pathname', { timeout: 10000 }).should('eq', '/');
+});
