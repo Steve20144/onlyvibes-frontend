@@ -1,0 +1,38 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ] 
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # JOB 1: RUN TESTS
+  cypress-run:
+    runs-on: ubuntu-latest
+    name: E2E Tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cypress Run
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm start
+          wait-on: 'http://localhost:3000'
+
+  # JOB 2: DEPLOY TO RENDER
+  deploy:
+    needs: cypress-run
+    
+    # Only deploy if we are pushing to main (don't deploy Pull Requests)
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    runs-on: ubuntu-latest
+    name: Deploy to Render
+    steps:
+      - name: Trigger Render Deployment
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
