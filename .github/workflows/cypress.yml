@@ -21,6 +21,14 @@ jobs:
           start: npm start
           wait-on: 'http://localhost:3000'
 
+      # 👇 NEW STEP ADDED HERE 👇
+      - name: Upload Cypress Screenshots
+        if: failure() # Only runs if the previous step (Cypress) failed
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+
   # JOB 2: DEPLOY TO RENDER
   deploy:
     needs: cypress-run
