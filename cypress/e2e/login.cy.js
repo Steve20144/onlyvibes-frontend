@@ -94,30 +94,59 @@ describe('Login Page Tests', () => {
   });
 
   // --- HAPPY PATH: SUCCESSFUL ACCOUNT DELETION ---
+  // --- HAPPY PATH: SUCCESSFUL ACCOUNT DELETION ---
   it('Should allow a user to delete their account successfully', () => {
     
+    // 1. SETUP: Spy on the network request
+    // This matches the endpoint structure in your accounts.js: `/accounts/${accountId}`
+    cy.intercept('DELETE', '**/accounts/*').as('deleteAccountReq');
+
+    // 2. Login
     cy.loginUser('cypress@gmail.com', 'cy');
 
-    // Navigate to profile screen
+    // 3. Navigate to profile
     cy.get('a[href="/profile"]').click();
     
-    // Click Delete Account button
+    // 4. Click Delete
     cy.contains('button', 'Delete Account').should('exist').click();
 
-    // Assert the custom popup message
+    // 5. Handle Confirmation Popup
     cy.get('.modal-box').should('be.visible');
     cy.contains('Delete Account').should('exist');
-
-    // Click the Yes button
     cy.contains('Yes').click();
 
-    // Assert the custom alert message
+    // 6. CRITICAL: Wait for your accounts.js API call to finish
+    // This prevents the test from finishing before the DB is actually updated
+    cy.wait('@deleteAccountReq').then((interception) => {
+        // Debug log to see what the server actually returned
+        console.log('Delete API Response:', interception.response);
+        
+        // Ensure the server returned 200 (OK) and not 500 or 400
+        expect(interception.response.statusCode).to.eq(200);
+    });
+
+    // 7. Verify UI Success Message
     cy.get('.modal-box').should('be.visible');
     cy.contains('Account Deleted Successfully').should('exist');
     cy.contains('button', 'OK').should('exist').click();
 
-    // Assert redirection to Home or Profile presence
+    // 8. Assert Redirect
     cy.location('pathname').should('eq', '/login');
+
+    // 9. FINAL VERIFICATION: Check if user is truly gone
+    // We try to log in again. If the account is gone, this MUST fail (401/404).
+    cy.request({
+        method: 'POST',
+        url: 'https://onlyvibes-backend.onrender.com/auth/login', 
+        body: {
+            email: 'cypress@gmail.com',
+            password: 'cy'
+        },
+        failOnStatusCode: false // Allow 400/500 responses without crashing test
+    }).then((response) => {
+        // We expect failure (401 Unauthorized or 404 Not Found)
+        expect(response.status).to.be.oneOf([401, 404]);
+    });
 
   });
 
