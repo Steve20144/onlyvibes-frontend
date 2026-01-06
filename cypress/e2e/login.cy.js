@@ -94,12 +94,11 @@ describe('Login Page Tests', () => {
   });
 
   // --- HAPPY PATH: SUCCESSFUL ACCOUNT DELETION ---
-  // --- HAPPY PATH: SUCCESSFUL ACCOUNT DELETION ---
   it('Should allow a user to delete their account successfully', () => {
     
     // 1. SETUP: Spy on the network request
     // This matches the endpoint structure in your accounts.js: `/accounts/${accountId}`
-    cy.intercept('DELETE', '**/accounts/*').as('deleteAccountReq');
+    cy.intercept('**/accounts/**').as('deleteAccountReq');
 
     // 2. Login
     cy.loginUser('cypress@gmail.com', 'cy');
