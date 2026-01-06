@@ -1,4 +1,5 @@
 import api from './client';
+import { getAccount } from './accounts';
 
 // The base URL for authentication
 const AUTH_URL = 'https://onlyvibes-backend.onrender.com/auth';
@@ -12,7 +13,7 @@ export const getCurrentUserId = () => {
 };
 
 /**
- * Checks if a user is currently logged in.
+ * Checks if a user is currently logged in locally.
  * @returns {boolean} True if logged in.
  */
 export const isAuthenticated = () => {
@@ -24,6 +25,7 @@ export const isAuthenticated = () => {
  * @param {function} [redirectCallback] - Optional callback to redirect (e.g., navigate('/login'))
  */
 export const logout = (redirectCallback) => {
+    console.log("🧹 Clearing auth session...");
     localStorage.removeItem('currentUserId');
     localStorage.removeItem('token');
     
@@ -31,8 +33,34 @@ export const logout = (redirectCallback) => {
     if (redirectCallback) {
         redirectCallback();
     } else {
-        // Fallback: Hard reload to login page
+        // Fallback: Hard reload to login page ensures all memory state is wiped
         window.location.href = '/login';
+    }
+};
+
+/**
+ * Checks if the stored user actually exists on the server. 
+ * If the user is missing (404) or token is invalid (401), it auto-logs out.
+ */
+export const validateSession = async () => {
+    const userId = getCurrentUserId();
+    if (!userId) return false;
+
+    try {
+        await getAccount(userId);
+        return true; 
+    } catch (error) {
+        // UPDATED: Added check for status 500
+        if (error.response && (
+            error.response.status === 401 || 
+            error.response.status === 404 || 
+            error.response.status === 500
+        )) {
+            console.warn("⚠️ Invalid Session (401/404/500): Auto-logging out.");
+            logout(); 
+            return false;
+        }
+        return true; 
     }
 };
 
@@ -57,4 +85,3 @@ export const signup = async (userData) => {
     const response = await api.post(`${AUTH_URL}/signup`, userData);
     return response.data;
 };
-

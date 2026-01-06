@@ -18,7 +18,6 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
   useEffect(() => {
     const userId = localStorage.getItem('currentUserId');
     if (userId) {
-        // Use navigate instead of window.location
         navigate(onSuccessRedirect);
     }
   }, [onSuccessRedirect, navigate]);
@@ -53,8 +52,6 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
           if (token) localStorage.setItem('token', token);
 
           await alert("Account created! Logging you in.", "Success");
-          
-          // Redirect immediately after OK is clicked
           navigate(onSuccessRedirect);
       } else {
           await alert("Account created! Please sign in.", "Success");
@@ -95,8 +92,6 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
       if (token) localStorage.setItem('token', token);
 
       await alert("Welcome back!", "Signed In");
-      
-      // Redirect immediately
       navigate(onSuccessRedirect);
 
     } catch (err) {
@@ -153,33 +148,60 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <h1 className="login-title">
-          OnlyVibes — {isSigningUp ? 'Join' : 'Sign in'}
-        </h1>
+      {/* WRAPPER: Forces vertical stacking of Card + Guest Button */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 'fit-content' }}>
         
-        <form onSubmit={isSigningUp ? handleRegister : handleSignIn} className="login-form">
-          {renderFormFields()}
+        {/* 1. THE MAIN CARD */}
+        <div className="login-card">
+          <h1 className="login-title">
+            OnlyVibes — {isSigningUp ? 'Join' : 'Sign in'}
+          </h1>
           
-          <div className="form-footer">
-            <button type="submit" disabled={loading} className="login-btn">
-              {loading ? 'Processing...' : (isSigningUp ? 'Sign Up' : 'Sign in')}
-            </button>
-            <button 
-              type="button" 
-              onClick={() => { 
-                setIsSigningUp(!isSigningUp); 
-                setError('');
-                setUsername('');
-                setEmail('');
-                setPassword('');
-              }} 
-              className="demo-link"
-            >
-              {isSigningUp ? 'Already have an account? Sign in' : 'New here? Create account'}
-            </button>
-          </div>
-        </form>
+          <form onSubmit={isSigningUp ? handleRegister : handleSignIn} className="login-form">
+            {renderFormFields()}
+            
+            <div className="form-footer">
+              <button type="submit" disabled={loading} className="login-btn">
+                {loading ? 'Processing...' : (isSigningUp ? 'Sign Up' : 'Sign in')}
+              </button>
+              <button 
+                type="button" 
+                onClick={() => { 
+                  setIsSigningUp(!isSigningUp); 
+                  setError('');
+                  setUsername('');
+                  setEmail('');
+                  setPassword('');
+                }} 
+                className="demo-link"
+              >
+                {isSigningUp ? 'Already have an account? Sign in' : 'New here? Create account'}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* 2. THE GUEST BUTTON (Directly Below) */}
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          style={{
+              marginTop: '20px',
+              background: 'transparent',
+              border: 'none', // No border
+              borderRadius: '8px',
+              color: 'rgba(255, 255, 255, 0.7)', 
+              padding: '10px 20px',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              width: 'max-content'
+          }}
+          
+        >
+            Continue without an account
+        </button>
+
       </div>
     </div>
   );
