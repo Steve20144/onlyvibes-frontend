@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import EventList from "../components/EventList"; 
+import EventList from "../components/EventList";
+import PageHeader from "../components/PageHeader";
+import PageContent from "../components/PageContent";
+import PageLayout from "../components/PageLayout";
+import { useEventNavigation } from "../hooks/useEventNavigation";
 
 // --- ALL YOUR DEMO EVENTS ---
 // We need to add 'userReview' to the data
@@ -80,6 +84,7 @@ const DEMO_EVENTS = [
 // 1. RENAMED COMPONENT
 const ReviewedEventsPage = () => {
   const navigate = useNavigate(); 
+  const { handleEventClick } = useEventNavigation(); 
   
   // 2. FILTERED INITIAL STATE
   // This state holds the "master list" of reviewed events
@@ -131,71 +136,17 @@ const ReviewedEventsPage = () => {
       return e;
     }));
   };
-  
-  const handleEventClick = (id) => {
-    navigate(`/events/${id}`);
-  };
 
   return (
-    <div style={{ 
-      width: '100%', 
-      height: 'auto', 
-      display: 'flex', 
-      flexDirection: 'column',
-    }}>
-      
-      {/* --- 1. STICKY HEADER --- */}
-      <div style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        backgroundColor: '#050016',
-        paddingTop: '10px',
-        paddingLeft: '20px',
-        paddingRight: '20px',
-        boxSizing: 'border-box',
-      }}>
-        {/* Search Bar */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '15px' }}>
-          <input 
-            type="text"
-            placeholder="Search reviewed events..." 
-            value={searchQuery}
-            onChange={handleSearch}
-            style={{
-              width: '100%', maxWidth: '300px', padding: '10px 15px', borderRadius: '20px',
-              border: 'none', backgroundColor: 'rgba(255, 255, 255, 0.1)', color: 'white',
-              textAlign: 'center', outline: 'none', fontSize: '16px'
-            }}
-          />
-        </div>
+    <PageLayout>
+      <PageHeader 
+        searchQuery={searchQuery}
+        onSearchChange={handleSearch}
+        onClearFilters={handleClearFilters}
+        placeholder="Search reviewed events..."
+      />
 
-        {/* Filter Row */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'row', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          paddingBottom: '15px',
-          color: '#ccc', 
-          fontSize: '13px' 
-        }}>
-          <button style={{ background: 'none', border: '1px solid #555', borderRadius: '10px', color: 'white', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>Filters</button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span>🕒</span> 22:30</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span>📍</span> 1.5 km</div>
-          <button onClick={handleClearFilters} style={{ background: 'rgba(255,0,0,0.2)', border: 'none', borderRadius: '10px', color: '#ff9999', padding: '4px 8px', fontSize: '12px', cursor: 'pointer' }}>Clear</button>
-        </div>
-      </div>
-
-      {/* --- 2. SCROLLABLE EVENT LIST --- */}
-      <div style={{ 
-        width: '100%', 
-        paddingBottom: '80px',
-        paddingLeft: '20px',
-        paddingRight: '20px',
-        boxSizing: 'border-box',
-        marginTop: '10px'
-      }}>
+      <PageContent>
         {displayedEvents.length > 0 ? (
           <EventList 
             events={displayedEvents} 
@@ -205,9 +156,8 @@ const ReviewedEventsPage = () => {
         ) : (
           <p style={{ color: '#888', textAlign: 'center' }}>You haven't reviewed any events yet.</p>
         )}
-      </div>
-
-    </div>
+      </PageContent>
+    </PageLayout>
   );
 };
 
