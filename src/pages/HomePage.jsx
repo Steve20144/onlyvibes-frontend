@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import EventList from "../components/EventList";
 import PageHeader from "../components/PageHeader";
 import PageContent from "../components/PageContent";
@@ -8,7 +7,6 @@ import { alert } from "../components/PopupDialog";
 import { useEventNavigation } from "../hooks/useEventNavigation";
 
 const HomePage = () => {
-  const navigate = useNavigate(); 
   const { handleEventClick } = useEventNavigation();
   const [searchQuery, setSearchQuery] = useState("");
   const [events, setEvents] = useState([]); 

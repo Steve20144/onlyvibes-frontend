@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import EventList from "../components/EventList";
 import PageHeader from "../components/PageHeader";
 import PageContent from "../components/PageContent";
@@ -83,7 +82,6 @@ const DEMO_EVENTS = [
 
 // 1. RENAMED COMPONENT
 const ReviewedEventsPage = () => {
-  const navigate = useNavigate(); 
   const { handleEventClick } = useEventNavigation(); 
   
   // 2. FILTERED INITIAL STATE
