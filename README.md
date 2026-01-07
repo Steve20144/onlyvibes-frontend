@@ -45,6 +45,7 @@ This project was built to strictly adhere to the **"Software Engineering 2 - Del
 ## 🛠️ Tech Stack
 
 * **Core:** React.js (v18), React Router v6
+* **Build Tool:** Vite (Replaced React Scripts/Webpack)
 * **HTTP Client:** Axios (Interceptors used for Auth Headers)
 * **Styling:** CSS Modules / Inline Styles (Dark Theme)
 * **Icons:** Lucide React
@@ -53,7 +54,7 @@ This project was built to strictly adhere to the **"Software Engineering 2 - Del
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/Steve20144/onlyvibes-frontend.git](https://github.com/YOUR_USERNAME/onlyvibes-frontend.git)
+    git clone [https://github.com/Steve20144/onlyvibes-frontend.git](https://github.com/Steve20144/onlyvibes-frontend.git)
     cd onlyvibes-frontend
     ```
 
@@ -66,7 +67,7 @@ This project was built to strictly adhere to the **"Software Engineering 2 - Del
     ```bash
     npm start
     ```
-    The app will run at `http://localhost:3000`.
+    The app will run at `http://localhost:5173`.
 
 ---
 
