@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.BACKEND_URL || "https://onlyvibes-backend.onrender.com/",
+  baseURL: import.meta.env.VITE_BACKEND_URL || "https://onlyvibes-backend.onrender.com/",
   headers: {
     "Content-Type": "application/json"
   }
