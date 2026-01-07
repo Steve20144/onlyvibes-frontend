@@ -136,7 +136,6 @@ export const fetchEventReviews = async (eventId) => {
  */
 export const fetchUserReviewedEvents = async () => {
     const accountId = getCurrentUserId();
-    const method = 'GET';
     const endpoint = `/accounts/${accountId}/reviewed-events`;
 
     // console.log(`📡 API CALL: ${method} ${endpoint}`);

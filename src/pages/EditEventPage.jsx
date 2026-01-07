@@ -109,7 +109,7 @@ export const EditEventPage = () => {
         {/* PHOTO GALLERY AREA */}
         <div style={styles.photoGallery}>
             <div style={styles.photoGrid}>
-                {event.photos && event.photos.slice(0, 6).map((p, i) => (
+                {event.photos && event.photos.slice(0, 6).map((_, i) => (
                     <img key={i} src={`https://picsum.photos/120/120?random=${id}-${i}`} alt={`Event photo ${i+1}`} style={styles.photoItem}/>
                 ))}
             </div>

@@ -1,7 +1,6 @@
-import { useState, useRef, useLayoutEffect } from "react";
+import { useRef, useLayoutEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import BottomNav from "../components/BottomNav";
-import { confirm, alert } from "../components/PopupDialog"; 
+import BottomNav from "../components/BottomNav"; 
 
 const hideScrollbarStyle = `
   .no-scrollbar::-webkit-scrollbar {
@@ -13,38 +12,13 @@ const hideScrollbarStyle = `
   }
 `;
 
-const scrollPositions = {}; 
-
 export default function MainLayout() {
   const location = useLocation();
   const scrollRef = useRef(null);
-  
-  const [isDebug, setIsDebug] = useState(false);
-  
 
   useLayoutEffect(() => {
     // ... (your scroll logic) ...
   }, [location.pathname]);
-
-  const handleScroll = (e) => {
-    // ... (your scroll logic) ...
-  };
-
-  // --- NEW: The function to trigger the popup ---
-  const handleTestClick = async () => {
-    // Trigger the confirmation popup and wait for click
-    const result = await confirm(
-      "You are testing the new popup system.<br/>Does it look good?", 
-      "System Check"
-    );
-
-    // Handle the result (True = Yes, False = No)
-    if (result) {
-      await alert("Awesome! You clicked <b>Yes</b>.", "Success");
-    } else {
-      console.log("User clicked No");
-    }
-  };
 
   return (
     <div style={{
@@ -55,8 +29,7 @@ export default function MainLayout() {
       overflow: 'hidden',
       backgroundColor: '#000',
       boxSizing: 'border-box',
-      position: 'relative',
-      border: isDebug ? '4px solid red' : 'none' 
+      position: 'relative'
     }}>
       
       <style>{hideScrollbarStyle}</style>
@@ -90,14 +63,12 @@ export default function MainLayout() {
       {/* ... (Scrollable content / Outlet) ... */}
       <div 
         ref={scrollRef}          
-        onScroll={handleScroll}  
         className="no-scrollbar" 
         style={{
           flex: 1,
           overflowY: 'auto',
           position: 'relative',
-          boxSizing: 'border-box',
-          border: isDebug ? '2px dashed cyan' : 'none'
+          boxSizing: 'border-box'
         }}
       >
         <Outlet />
@@ -108,8 +79,7 @@ export default function MainLayout() {
         flex: '0 0 auto',
         width: '100%',
         zIndex: 50,
-        background: '#000',
-        borderTop: isDebug ? '2px solid yellow' : 'none'
+        background: '#000'
       }}>
         <BottomNav />
       </div>
@@ -117,15 +87,3 @@ export default function MainLayout() {
     </div>
   );
 }
-
-// Helper function for button styles
-const debugButtonStyle = (backgroundColor) => ({
-  background: backgroundColor,
-  color: 'white',
-  border: 'none',
-  borderRadius: '5px',
-  padding: '4px 8px',
-  fontSize: '12px',
-  cursor: 'pointer',
-  fontFamily: 'sans-serif'
-});

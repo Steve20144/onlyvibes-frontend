@@ -42,7 +42,7 @@ export async function getEvents(filters = {}) {
     }
 
     return []; 
-};
+}
 
 /**
  * Alias for fetchEventDetails.

@@ -21,7 +21,8 @@ const HomePage = () => {
       setEvents(eventArray); 
       
     } catch (err) {
-
+      console.error('Failed to load events:', err);
+      setError('Failed to load events. Please try again.');
     } finally {
       setIsLoading(false);
     }

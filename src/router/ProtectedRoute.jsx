@@ -2,7 +2,6 @@ import { Navigate, useLocation } from "react-router-dom";
 import { isAuthenticated } from "../api/auth";
 
 const ProtectedRoute = ({ children }) => {
-  const isLoggedIn = !!localStorage.getItem('currentUserId');
   const location = useLocation();
   const userIsAuthenticated = isAuthenticated();
 
