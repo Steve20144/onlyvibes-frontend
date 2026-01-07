@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Star, Edit2, X } from 'lucide-react';
 import { submitReview, updateReview, deleteReview } from '../api/reviews';
 import { getCurrentUserId } from '../api/auth';
-import { confirm, alert } from '../components/PopupDialog';
+import { alert } from '../components/PopupDialog';
 
 export default function UserReviewSection({ eventId, reviews, onRefresh }) {
     const userId = getCurrentUserId();

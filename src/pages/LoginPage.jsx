@@ -12,7 +12,6 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
   const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   // Check if already logged in
   useEffect(() => {
@@ -27,7 +26,6 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
   // ==========================================
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError('');
     
     if (!username || !email || !password) {
       await alert("Username, Email, and Password are required.", "Missing Info");
@@ -72,7 +70,6 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
   // ==========================================
   const handleSignIn = async (e) => {
     e.preventDefault();
-    setError('');
     
     if (!email || !password) {
       await alert("Please enter email and password.", "Input Required");
@@ -168,7 +165,6 @@ export default function LoginPage({ onSuccessRedirect = '/' }) {
                 type="button" 
                 onClick={() => { 
                   setIsSigningUp(!isSigningUp); 
-                  setError('');
                   setUsername('');
                   setEmail('');
                   setPassword('');
