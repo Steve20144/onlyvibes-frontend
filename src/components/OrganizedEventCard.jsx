@@ -1,3 +1,11 @@
+/**
+ * A compact event card component designed for the "Organized Events" dashboard.
+ * Features an edit icon and distinct styling for cancelled events.
+ * * @param {object} props - The component props.
+ * @param {object} props.event - The event data object.
+ * @param {function} props.onCardClick - Handler for when the user clicks the card (e.g., to edit).
+ * @returns {JSX.Element} The styled event card.
+ */
 const OrganizedEventCard = ({ event, onCardClick }) => {    
     const isCancelled = event.isCancelled;
 

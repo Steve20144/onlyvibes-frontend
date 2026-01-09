@@ -11,6 +11,14 @@ import { getCurrentUserId } from '../api/auth';
 import { confirm, alert } from '../components/PopupDialog'; 
 import UserReviewSection from '../components/UserReviewSection'; 
 
+/**
+ * A full-screen page displaying detailed information about a specific event.
+ * Includes:
+ * - Hero image and metadata.
+ * - Controls for the event owner to delete the event.
+ * - Integrated review system (User's review + Community feed).
+ * * @returns {JSX.Element} The Event Details page.
+ */
 export const EventDetailsPage = () => {  
   const { id } = useParams();
   const navigate = useNavigate();
@@ -177,6 +185,13 @@ export const EventDetailsPage = () => {
 };
 
 // --- SUB-COMPONENT: Single Review Item ---
+
+/**
+ * Renders a single review card for the community feed.
+ * @param {object} props - Component props.
+ * @param {object} props.review - The review data object.
+ * @returns {JSX.Element} The review card.
+ */
 const ReviewItem = ({ review }) => {
     const displayName = 
         review.username || 

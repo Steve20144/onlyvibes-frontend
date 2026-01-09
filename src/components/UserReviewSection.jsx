@@ -4,9 +4,20 @@ import { submitReview, updateReview, deleteReview } from '../api/reviews';
 import { getCurrentUserId } from '../api/auth';
 import { alert } from '../components/PopupDialog';
 
+/**
+ * A self-contained component for handling user reviews on an event.
+ * Determines if the current user has already left a review and toggles between 
+ * the "View Review" and "Edit/Create Review" states.
+ * * @param {object} props - The component props.
+ * @param {string|number} props.eventId - The ID of the event being reviewed.
+ * @param {Array} props.reviews - The list of existing reviews to check against.
+ * @param {function} props.onRefresh - Callback to trigger a data refresh after submission/deletion.
+ * @returns {JSX.Element|null} The review form or the user's existing review card.
+ */
 export default function UserReviewSection({ eventId, reviews, onRefresh }) {
     const userId = getCurrentUserId();
 
+    // Logic to find if the logged-in user already has a review in the list
     const existingReview = reviews.find(r => {
         if (!userId) return false;
 
@@ -36,6 +47,7 @@ export default function UserReviewSection({ eventId, reviews, onRefresh }) {
     const [comment, setComment] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // Sync state with existing review if one is found
     useEffect(() => {
         if (existingReview) {
             setRating(existingReview.rating);

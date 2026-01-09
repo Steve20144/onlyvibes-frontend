@@ -6,6 +6,15 @@ import { getEvents, likeEvent } from "../api/events";
 import { alert } from "../components/PopupDialog";
 import { useEventNavigation } from "../hooks/useEventNavigation";
 
+/**
+ * The main landing page for the application.
+ * Displays a scrollable feed of events with search and filtering capabilities.
+ * Handles:
+ * - Fetching event data from the API.
+ * - Dynamic client-side searching.
+ * - Optimistic UI updates for the "Like" feature.
+ * * @returns {JSX.Element} The Home Page component.
+ */
 const HomePage = () => {
   const { handleEventClick } = useEventNavigation();
   const [searchQuery, setSearchQuery] = useState("");
