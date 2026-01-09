@@ -119,3 +119,38 @@ This section tracks adherence to the specific requirements set for the **"Softwa
 | **DevOps-02** | **Deployment** | ✅ **Done** | Both Frontend and Backend are successfully deployed to **Render** and communicate correctly. |
 
 ---
+
+## 📋 Assignment 3 Compliance Matrix
+
+This section tracks adherence to the specific requirements set for the **"Software Engineering 2 - Deliverable 3"** assignment.
+
+| Requirement Category | Specific Requirement | Status | Implementation Details / Evidence |
+| :--- | :--- | :--- | :--- |
+| **1. Code Quality Assessment** | Assess code quality using the **Cyclopt** platform. | **Completed** | The frontend repository has been fully integrated with Cyclopt for static analysis on all active branches. |
+| **2. Metric Improvement** | Set improvement goals and proceed with corrections/changes to code. | **Completed** | We have achieved **0 violations** across all severity levels. As shown in the dashboard history, we successfully removed **5 Major Violations**, fulfilling the requirement to improve metrics based on platform feedback. |
+| **3. Clean Code Standards** | Ensure optimal metrics for Duplicates, Violations, and Vulnerabilities. | **Completed** | Current Cyclopt analysis reports: <br>• **0%** Duplicate Code <br>• **0** Vulnerabilities <br>• **0** Violations (Critical/Major/Minor) <br> This meets the goal of optimizing metrics to the best extent possible. |
+
+---
+
+### 📊 Cyclopt Quality Report Summary
+
+The following metrics demonstrate the current state of the `onlyvibes-frontend` repository following the refactoring process required for Deliverable 3.
+
+#### **A. Violations**
+* **Critical:** 0
+* **Major:** 0 
+* **Minor:** 0
+* **Total:** 0
+> *The code is free of Cyclopt-detected violations.*
+
+#### **B. Duplicates**
+* **Duplicate Code:** 0%
+* **Duplicate Lines:** 0
+> *The codebase maintains high modularity with no repetition.*
+
+#### **C. Security**
+* **Vulnerabilities:** 0
+* **Security Hotspots:** 0
+> *No security risks were detected by the static analysis tool.*
+
+---
