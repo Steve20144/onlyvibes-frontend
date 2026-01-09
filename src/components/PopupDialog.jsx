@@ -2,6 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import '../styles/PopupDialog.css'; 
 
+/**
+ * Internal component for rendering the popup UI.
+ * Handles mounting animation and cleanup.
+ * * @param {object} props - Component props.
+ * @param {string} props.message - HTML content of the message.
+ * @param {string} props.title - Title of the popup.
+ * @param {string} props.type - 'confirm' (Yes/No) or 'info' (OK).
+ * @param {function} props.onConfirm - Callback for positive action.
+ * @param {function} props.onCancel - Callback for negative action.
+ * @param {function} props.close - Cleanup callback to remove the component from DOM.
+ */
 const PopupComponent = ({ message, title, type, onConfirm, onCancel, close }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -42,6 +53,11 @@ const PopupComponent = ({ message, title, type, onConfirm, onCancel, close }) =>
   );
 };
 
+/**
+ * Mounts a popup component dynamically to the DOM.
+ * @param {object} options - Configuration for the popup.
+ * @returns {Promise<boolean>} Resolves to true if confirmed/acknowledged, false if cancelled.
+ */
 const spawnPopup = ({ type, title, message }) => {
   return new Promise((resolve) => {
     // Create a temporary div to hold the popup
@@ -69,10 +85,23 @@ const spawnPopup = ({ type, title, message }) => {
 };
 
 // Exported Functions
+
+/**
+ * Displays a confirmation dialog (Yes/No).
+ * @param {string} message - The question to ask.
+ * @param {string} [title="Are you sure?"] - The dialog title.
+ * @returns {Promise<boolean>} True if user clicked Yes, False otherwise.
+ */
 export const confirm = async (message, title = "Are you sure?") => {
   return spawnPopup({ type: 'confirm', title, message });
 };
 
+/**
+ * Displays an alert dialog (OK).
+ * @param {string} message - The message to display.
+ * @param {string} [title="Notice"] - The dialog title.
+ * @returns {Promise<boolean>} Resolves when closed.
+ */
 export const alert = async (message, title = "Notice") => {
   return spawnPopup({ type: 'info', title, message });
 };

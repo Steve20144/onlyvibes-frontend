@@ -1,3 +1,13 @@
+/**
+ * A sticky header component that includes a search bar and filter toggles.
+ * Positioned at the top of the page with a z-index overlay.
+ * * @param {object} props - The component props.
+ * @param {string} props.searchQuery - The current value of the search input.
+ * @param {function} props.onSearchChange - Handler for search input changes.
+ * @param {function} props.onClearFilters - Handler to reset active filters.
+ * @param {string} [props.placeholder="Search..."] - Placeholder text for the input field.
+ * @returns {JSX.Element} The sticky header UI.
+ */
 const PageHeader = ({ searchQuery, onSearchChange, onClearFilters, placeholder = "Search..." }) => {
   return (
     <div style={{

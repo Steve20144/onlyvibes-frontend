@@ -12,6 +12,14 @@ const hideScrollbarStyle = `
   }
 `;
 
+/**
+ * The primary application layout for authenticated users.
+ * Features:
+ * - A scrollable content area that hides native scrollbars for a mobile-app feel.
+ * - A persistent Bottom Navigation bar.
+ * - Automatic scroll-to-top behavior on route changes.
+ * * @returns {JSX.Element} The main layout wrapper.
+ */
 export default function MainLayout() {
   const location = useLocation();
   const scrollRef = useRef(null);
