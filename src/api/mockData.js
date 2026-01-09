@@ -7,7 +7,7 @@ export const MOCK_EVENT_ID_EDITABLE_1 = 404;
 export const MOCK_EVENT_ID_EDITABLE_2 = 201; 
 export const MOCK_EVENT_ID_EDITABLE_3 = 202; 
 
-// --- 2. Account Entity (John Doe is the user) ---
+// --- 2. Account Entity ---
 export const MOCK_ACCOUNT = {
   id: MOCK_USER_ID,
   email: "john.doe@example.com",
@@ -21,67 +21,27 @@ export const MOCK_ACCOUNT = {
   followedAccountsIds: ["venue456"],
 };
 
-// --- 3. Event Entities (3+ Editable Events Added) ---
+// --- 3. Event Entities ---
+// Refactor: Helper function to reduce repetition and improve Maintainability Index
+const makeEvent = (id, creatorId, title, location, dateTime, category, likecounter, distance, imgId, extra = {}) => ({
+  id,
+  creatorId,
+  title,
+  location,
+  dateTime,
+  category,
+  likecounter,
+  distance,
+  imageUrl: `https://picsum.photos/400/200?random=${imgId}`,
+  ...extra
+});
+
 export const MOCK_EVENTS = [
-  {
-    id: 101,
-    creatorId: 1, 
-    title: "Sunset Session",
-    location: "Beach Bar A",
-    dateTime: "2025-11-20T19:00:00Z",
-    category: "Music",
-    likecounter: 125,
-    distance: "0.1 km",
-    imageUrl: "https://picsum.photos/400/200?random=1"
-  },
-  {
-    id: 102,
-    creatorId: 2, 
-    title: "Jazz Night",
-    location: "Chandeliers Venue",
-    dateTime: "2025-11-22T21:00:00Z",
-    category: "Music",
-    likecounter: 543,
-    distance: "0.4 km",
-    imageUrl: "https://picsum.photos/400/200?random=2"
-  },
-  {
-    // Editable Event 1 (The main test event)
-    id: MOCK_EVENT_ID_EDITABLE_1, 
-    creatorId: 3, 
-    title: "Cool Party Title #1",
-    location: "Casper",
-    dateTime: "2025-03-29T23:00:00Z",
-    category: "Party",
-    likecounter: 342,
-    distance: "0.3 km",
-    imageUrl: "https://picsum.photos/400/200?random=3"
-  },
-  {
-    // Editable Event 2 (Upcoming Dance Event)
-    id: MOCK_EVENT_ID_EDITABLE_2, 
-    creatorId: 3, 
-    title: "Tech House Rave",
-    location: "Warehouse Z",
-    dateTime: "2026-01-15T01:00:00Z",
-    category: "Dance",
-    likecounter: 980,
-    distance: "5.5 km",
-    imageUrl: "https://picsum.photos/400/200?random=4"
-  },
-  {
-    // Editable Event 3 (Cancelled Status Mock)
-    id: MOCK_EVENT_ID_EDITABLE_3, 
-    creatorId: 3, 
-    title: "Acoustic Sunset",
-    location: "The Rooftop",
-    dateTime: "2025-12-05T18:00:00Z",
-    category: "Chill",
-    likecounter: 12,
-    distance: "1.2 km",
-    isCancelled: true, 
-    imageUrl: "https://picsum.photos/400/200?random=5"
-  },
+  makeEvent(101, 1, "Sunset Session", "Beach Bar A", "2025-11-20T19:00:00Z", "Music", 125, "0.1 km", 1),
+  makeEvent(102, 2, "Jazz Night", "Chandeliers Venue", "2025-11-22T21:00:00Z", "Music", 543, "0.4 km", 2),
+  makeEvent(MOCK_EVENT_ID_EDITABLE_1, 3, "Cool Party Title #1", "Casper", "2025-03-29T23:00:00Z", "Party", 342, "0.3 km", 3),
+  makeEvent(MOCK_EVENT_ID_EDITABLE_2, 3, "Tech House Rave", "Warehouse Z", "2026-01-15T01:00:00Z", "Dance", 980, "5.5 km", 4),
+  makeEvent(MOCK_EVENT_ID_EDITABLE_3, 3, "Acoustic Sunset", "The Rooftop", "2025-12-05T18:00:00Z", "Chill", 12, "1.2 km", 5, { isCancelled: true }),
 ];
 
 // --- 4. Review Entity ---
@@ -94,23 +54,20 @@ export const MOCK_REVIEW = {
   timestamp: "2025-03-30T10:00:00Z"
 };
 
-// --- 5. Event Details States (Added necessary fields for EditPage) ---
+// --- 5. Event Details States ---
 const baseEvent = MOCK_EVENTS.find(e => e.id === MOCK_EVENT_ID_EDITABLE_1);
 
-export const MOCK_EVENT_DETAILS_WITH_REVIEW = {
+// Refactor: Helper to avoid code duplication in details objects
+const createDetails = (hasReview) => ({
     ...baseEvent,
     reviewSummary: 4.0,
-    reviewCount: 264, 
-    userReview: MOCK_REVIEW, 
-    reviews: [MOCK_REVIEW],
+    reviewCount: hasReview ? 264 : 263,
+    userReview: hasReview ? MOCK_REVIEW : null,
+    reviews: hasReview ? [MOCK_REVIEW] : [],
     description: "Suspense condimentum eget mi non dapibus. In hac habitasse platea dictumst. Aenean convallis odio massa, pellentesque posuere turpis pulvinar in.",
-    photos: ["p1.jpg", "p2.jpg", "p3.jpg", "p4.jpg", "p5.jpg", "p6.jpg"]
-};
+    // Generates ["p1.jpg", ... "p6.jpg"] dynamically
+    photos: Array.from({ length: 6 }, (_, i) => `p${i + 1}.jpg`) 
+});
 
-export const MOCK_EVENT_DETAILS_WITHOUT_REVIEW = {
-    ...baseEvent,
-    reviewSummary: 4.0,
-    reviewCount: 263, 
-    userReview: null, 
-    reviews: []
-};
+export const MOCK_EVENT_DETAILS_WITH_REVIEW = createDetails(true);
+export const MOCK_EVENT_DETAILS_WITHOUT_REVIEW = createDetails(false);
